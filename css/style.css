@@ -1,0 +1,489 @@
+/* ===================================================
+   SIX PACK INSTRUMENT TRAINER — Aviation Dark Theme
+   =================================================== */
+
+:root {
+    --panel-bg:        #0f0f0f;
+    --panel-surface:   #161616;
+    --bezel-outer:     #2a2a2a;
+    --bezel-ring:      #3d3d3d;
+    --bezel-highlight: #505050;
+    --text-primary:    #dcdcdc;
+    --text-dim:        #777;
+    --text-label:      #555;
+    --accent-amber:    #f0a500;
+    --accent-green:    #00cc66;
+    --accent-red:      #e03030;
+    --accent-blue:     #3a9fd6;
+    --answer-bg:       #0e2240;
+    --answer-border:   #1a3a60;
+    --answer-hover:    #183660;
+    --answer-correct:  #0d3a1a;
+    --answer-wrong:    #3a0d0d;
+    --border-correct:  #00aa44;
+    --border-wrong:    #cc2222;
+    --font-cockpit:    'Courier New', Courier, monospace;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    width: 100%;
+    min-height: 100vh;
+    background: var(--panel-bg);
+    color: var(--text-primary);
+    font-family: var(--font-cockpit);
+    overflow-x: hidden;
+}
+
+/* ===================================================
+   SCREEN MANAGEMENT
+   =================================================== */
+
+.screen {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.screen.hidden {
+    display: none;
+}
+
+/* ===================================================
+   INTRO SCREEN
+   =================================================== */
+
+.intro-content {
+    text-align: center;
+    max-width: 520px;
+    padding: 40px 24px;
+}
+
+.intro-logo {
+    font-size: 56px;
+    line-height: 1;
+    margin-bottom: 16px;
+    opacity: 0.8;
+    filter: drop-shadow(0 0 16px var(--accent-amber));
+}
+
+.intro-content h1 {
+    font-size: 2.4rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-amber);
+    line-height: 1.15;
+    margin-bottom: 20px;
+}
+
+.intro-sub {
+    font-size: 0.95rem;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-bottom: 28px;
+}
+
+.intro-sub strong {
+    color: var(--accent-amber);
+}
+
+.intro-instruments {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 36px;
+}
+
+.intro-instruments span {
+    background: var(--bezel-outer);
+    border: 1px solid var(--bezel-highlight);
+    color: var(--text-dim);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+}
+
+/* ===================================================
+   BUTTONS
+   =================================================== */
+
+.btn-primary {
+    background: var(--accent-amber);
+    color: #0f0f0f;
+    border: none;
+    padding: 14px 40px;
+    font-family: var(--font-cockpit);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+}
+
+.btn-primary:hover {
+    background: #ffc030;
+    transform: translateY(-1px);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* ===================================================
+   PANEL HEADER
+   =================================================== */
+
+#trainer-panel {
+    justify-content: flex-start;
+    padding-top: 0;
+    min-height: 100vh;
+}
+
+#panel-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--panel-surface);
+    border-bottom: 2px solid var(--bezel-outer);
+    padding: 10px 24px;
+    max-width: 940px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.header-left, .header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 70px;
+}
+
+.header-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--text-label);
+    text-transform: uppercase;
+}
+
+#scenario-counter, #score-tracker {
+    font-size: 1.1rem;
+    color: var(--accent-amber);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+.header-center {
+    flex: 1;
+    text-align: center;
+}
+
+#status-text {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+}
+
+/* ===================================================
+   PROGRESS BAR
+   =================================================== */
+
+#progress-bar-wrap {
+    width: 100%;
+    max-width: 940px;
+    margin: 0 auto;
+    padding: 0 24px;
+    background: var(--panel-surface);
+    padding-bottom: 8px;
+}
+
+#progress-bar {
+    width: 100%;
+    height: 4px;
+    background: #222;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+#progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent-amber);
+    border-radius: 2px;
+    box-shadow: 0 0 6px var(--accent-amber);
+}
+
+/* ===================================================
+   INSTRUMENT PANEL GRID
+   =================================================== */
+
+#instrument-panel {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, auto);
+    gap: 20px;
+    padding: 20px 24px;
+    max-width: 940px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.instrument-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.instrument-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    color: var(--text-label);
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.instrument-unit {
+    font-size: 0.58rem;
+    letter-spacing: 0.15em;
+    color: var(--text-label);
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.instrument-slot svg {
+    width: 100%;
+    max-width: 220px;
+    height: auto;
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 3px #0a0a0a,
+        0 0 0 6px var(--bezel-ring),
+        0 0 0 8px var(--bezel-highlight),
+        0 0 0 10px #0a0a0a,
+        0 8px 24px rgba(0,0,0,0.7),
+        inset 0 2px 4px rgba(0,0,0,0.6);
+    background: #000;
+}
+
+/* ===================================================
+   QUESTION PANEL
+   =================================================== */
+
+#question-panel {
+    padding: 24px;
+}
+
+.question-container {
+    max-width: 640px;
+    width: 100%;
+}
+
+#question-text {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: 28px;
+    line-height: 1.6;
+    letter-spacing: 0.04em;
+    padding: 20px;
+    background: var(--panel-surface);
+    border: 1px solid var(--bezel-outer);
+    border-radius: 6px;
+}
+
+#answer-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.answer-btn {
+    background: var(--answer-bg);
+    border: 1px solid var(--answer-border);
+    color: var(--text-primary);
+    padding: 18px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: var(--font-cockpit);
+    font-size: 0.85rem;
+    text-align: left;
+    line-height: 1.5;
+    transition: background 0.12s, border-color 0.12s, transform 0.1s;
+    letter-spacing: 0.02em;
+}
+
+.answer-btn:hover:not(:disabled) {
+    background: var(--answer-hover);
+    border-color: var(--accent-blue);
+    transform: translateY(-1px);
+}
+
+.answer-btn.correct {
+    background: var(--answer-correct);
+    border-color: var(--border-correct);
+}
+
+.answer-btn.wrong {
+    background: var(--answer-wrong);
+    border-color: var(--border-wrong);
+}
+
+.answer-btn:disabled {
+    cursor: default;
+    transform: none;
+}
+
+.answer-letter {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    line-height: 22px;
+    text-align: center;
+    background: var(--bezel-outer);
+    border-radius: 3px;
+    font-size: 0.75rem;
+    margin-right: 8px;
+    font-weight: 700;
+    vertical-align: middle;
+}
+
+.answer-btn.correct .answer-letter {
+    background: var(--border-correct);
+    color: #000;
+}
+
+.answer-btn.wrong .answer-letter {
+    background: var(--border-wrong);
+    color: #fff;
+}
+
+/* ===================================================
+   FEEDBACK PANEL
+   =================================================== */
+
+.feedback-container {
+    max-width: 580px;
+    width: 100%;
+    text-align: center;
+    padding: 32px 24px;
+}
+
+#feedback-icon {
+    font-size: 3.5rem;
+    line-height: 1;
+    margin-bottom: 12px;
+}
+
+#feedback-result {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+}
+
+#feedback-result.correct {
+    color: var(--accent-green);
+}
+
+#feedback-result.wrong {
+    color: var(--accent-red);
+}
+
+#feedback-explanation {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    line-height: 1.75;
+    margin-bottom: 32px;
+    padding: 20px;
+    background: var(--panel-surface);
+    border: 1px solid var(--bezel-outer);
+    border-left: 3px solid var(--accent-amber);
+    border-radius: 4px;
+    text-align: left;
+}
+
+/* ===================================================
+   COMPLETE SCREEN
+   =================================================== */
+
+.complete-content {
+    text-align: center;
+    max-width: 480px;
+    padding: 40px 24px;
+}
+
+.complete-icon {
+    font-size: 56px;
+    line-height: 1;
+    margin-bottom: 16px;
+    filter: drop-shadow(0 0 16px var(--accent-green));
+}
+
+.complete-content h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-amber);
+    margin-bottom: 24px;
+}
+
+#final-score {
+    font-size: 4rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+#final-grade {
+    font-size: 1rem;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    margin-bottom: 36px;
+}
+
+/* ===================================================
+   RESPONSIVE — SMALL SCREENS
+   =================================================== */
+
+@media (max-width: 640px) {
+    #instrument-panel {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+        padding: 14px;
+    }
+
+    #answer-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .intro-content h1 {
+        font-size: 1.8rem;
+    }
+
+    #panel-header {
+        padding: 8px 14px;
+    }
+}
+
+@media (max-width: 400px) {
+    #instrument-panel {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 10px;
+    }
+}

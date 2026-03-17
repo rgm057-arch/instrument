@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Six Pack Instrument Trainer</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Intro Screen -->
+    <div id="intro-screen" class="screen">
+        <div class="intro-content">
+            <div class="intro-logo">✈</div>
+            <h1>Six Pack<br>Instrument Trainer</h1>
+            <p class="intro-sub">Watch the instruments animate for <strong>3 seconds</strong>, then identify the flight condition from the multiple choice options.</p>
+            <div class="intro-instruments">
+                <span>ASI</span><span>AI</span><span>ALT</span>
+                <span>TC</span><span>HDG</span><span>VSI</span>
+            </div>
+            <button id="btn-start" class="btn-primary">Begin Training</button>
+        </div>
+    </div>
+
+    <!-- Main Trainer Panel -->
+    <div id="trainer-panel" class="screen hidden">
+        <div id="panel-header">
+            <div class="header-left">
+                <span class="header-label">SCENARIO</span>
+                <span id="scenario-counter">1 / 6</span>
+            </div>
+            <div class="header-center">
+                <span id="status-text">Observe the instruments...</span>
+            </div>
+            <div class="header-right">
+                <span class="header-label">SCORE</span>
+                <span id="score-tracker">0 / 0</span>
+            </div>
+        </div>
+
+        <div id="progress-bar-wrap">
+            <div id="progress-bar"><div id="progress-fill"></div></div>
+        </div>
+
+        <!-- Six Instrument Panel -->
+        <div id="instrument-panel">
+            <div class="instrument-slot" id="slot-asi">
+                <div class="instrument-label">AIRSPEED</div>
+                <svg id="svg-asi" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"></svg>
+                <div class="instrument-unit">KNOTS</div>
+            </div>
+            <div class="instrument-slot" id="slot-ai">
+                <div class="instrument-label">ATTITUDE</div>
+                <svg id="svg-ai" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"></svg>
+                <div class="instrument-unit">&nbsp;</div>
+            </div>
+            <div class="instrument-slot" id="slot-alt">
+                <div class="instrument-label">ALTIMETER</div>
+                <svg id="svg-alt" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"></svg>
+                <div class="instrument-unit">FEET</div>
+            </div>
+            <div class="instrument-slot" id="slot-tc">
+                <div class="instrument-label">TURN COORD</div>
+                <svg id="svg-tc" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"></svg>
+                <div class="instrument-unit">2 MIN TURN</div>
+            </div>
+            <div class="instrument-slot" id="slot-di">
+                <div class="instrument-label">HEADING</div>
+                <svg id="svg-di" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"></svg>
+                <div class="instrument-unit">MAG</div>
+            </div>
+            <div class="instrument-slot" id="slot-vsi">
+                <div class="instrument-label">VERT SPEED</div>
+                <svg id="svg-vsi" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"></svg>
+                <div class="instrument-unit">FT / MIN</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Question Overlay -->
+    <div id="question-panel" class="screen hidden">
+        <div class="question-container">
+            <div id="question-text"></div>
+            <div id="answer-grid"></div>
+        </div>
+    </div>
+
+    <!-- Feedback Overlay -->
+    <div id="feedback-panel" class="screen hidden">
+        <div class="feedback-container">
+            <div id="feedback-icon"></div>
+            <div id="feedback-result"></div>
+            <div id="feedback-explanation"></div>
+            <button id="btn-next" class="btn-primary">Next Scenario →</button>
+        </div>
+    </div>
+
+    <!-- Complete Screen -->
+    <div id="complete-screen" class="screen hidden">
+        <div class="complete-content">
+            <div class="complete-icon">✈</div>
+            <h2>Training Complete</h2>
+            <div id="final-score"></div>
+            <div id="final-grade"></div>
+            <button id="btn-retry" class="btn-primary">Fly Again</button>
+        </div>
+    </div>
+
+    <script src="js/instruments.js"></script>
+    <script src="js/scenarios.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
