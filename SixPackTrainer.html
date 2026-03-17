@@ -1,0 +1,2402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Six Pack Instrument Trainer</title>
+    <style>
+/* ===================================================
+   SIX PACK INSTRUMENT TRAINER — Aviation Dark Theme
+   =================================================== */
+
+:root {
+    --panel-bg:        #0f0f0f;
+    --panel-surface:   #161616;
+    --bezel-outer:     #2a2a2a;
+    --bezel-ring:      #3d3d3d;
+    --bezel-highlight: #505050;
+    --text-primary:    #dcdcdc;
+    --text-dim:        #777;
+    --text-label:      #555;
+    --accent-amber:    #f0a500;
+    --accent-green:    #00cc66;
+    --accent-red:      #e03030;
+    --accent-blue:     #3a9fd6;
+    --answer-bg:       #0e2240;
+    --answer-border:   #1a3a60;
+    --answer-hover:    #183660;
+    --answer-correct:  #0d3a1a;
+    --answer-wrong:    #3a0d0d;
+    --border-correct:  #00aa44;
+    --border-wrong:    #cc2222;
+    --font-cockpit:    'Courier New', Courier, monospace;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    width: 100%;
+    min-height: 100vh;
+    background: var(--panel-bg);
+    color: var(--text-primary);
+    font-family: var(--font-cockpit);
+    overflow-x: hidden;
+}
+
+/* ===================================================
+   SCREEN MANAGEMENT
+   =================================================== */
+
+.screen {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.screen.hidden {
+    display: none;
+}
+
+/* ===================================================
+   INTRO SCREEN
+   =================================================== */
+
+.intro-content {
+    text-align: center;
+    max-width: 520px;
+    padding: 40px 24px;
+}
+
+.intro-logo {
+    font-size: 56px;
+    line-height: 1;
+    margin-bottom: 16px;
+    opacity: 0.8;
+    filter: drop-shadow(0 0 16px var(--accent-amber));
+}
+
+.intro-content h1 {
+    font-size: 2.4rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-amber);
+    line-height: 1.15;
+    margin-bottom: 20px;
+}
+
+.intro-sub {
+    font-size: 0.95rem;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-bottom: 28px;
+}
+
+.intro-sub strong {
+    color: var(--accent-amber);
+}
+
+.intro-instruments {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 36px;
+}
+
+.intro-instruments span {
+    background: var(--bezel-outer);
+    border: 1px solid var(--bezel-highlight);
+    color: var(--text-dim);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+}
+
+/* ===================================================
+   BUTTONS
+   =================================================== */
+
+.btn-primary {
+    background: var(--accent-amber);
+    color: #0f0f0f;
+    border: none;
+    padding: 14px 40px;
+    font-family: var(--font-cockpit);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+}
+
+.btn-primary:hover {
+    background: #ffc030;
+    transform: translateY(-1px);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* ===================================================
+   PANEL HEADER
+   =================================================== */
+
+#trainer-panel {
+    justify-content: flex-start;
+    padding-top: 0;
+    min-height: 100vh;
+}
+
+#panel-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--panel-surface);
+    border-bottom: 2px solid var(--bezel-outer);
+    padding: 10px 24px;
+    max-width: 940px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.header-left, .header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 70px;
+}
+
+.header-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--text-label);
+    text-transform: uppercase;
+}
+
+#scenario-counter, #score-tracker {
+    font-size: 1.1rem;
+    color: var(--accent-amber);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+.header-center {
+    flex: 1;
+    text-align: center;
+}
+
+#status-text {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+}
+
+/* ===================================================
+   PROGRESS BAR
+   =================================================== */
+
+#progress-bar-wrap {
+    width: 100%;
+    max-width: 940px;
+    margin: 0 auto;
+    padding: 0 24px;
+    background: var(--panel-surface);
+    padding-bottom: 8px;
+}
+
+#progress-bar {
+    width: 100%;
+    height: 4px;
+    background: #222;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+#progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent-amber);
+    border-radius: 2px;
+    box-shadow: 0 0 6px var(--accent-amber);
+}
+
+/* ===================================================
+   INSTRUMENT PANEL GRID
+   =================================================== */
+
+#instrument-panel {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, auto);
+    gap: 20px;
+    padding: 20px 24px;
+    max-width: 940px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.instrument-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.instrument-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    color: var(--text-label);
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.instrument-unit {
+    font-size: 0.58rem;
+    letter-spacing: 0.15em;
+    color: var(--text-label);
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.instrument-slot svg {
+    width: 100%;
+    max-width: 220px;
+    height: auto;
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 3px #0a0a0a,
+        0 0 0 6px var(--bezel-ring),
+        0 0 0 8px var(--bezel-highlight),
+        0 0 0 10px #0a0a0a,
+        0 8px 24px rgba(0,0,0,0.7),
+        inset 0 2px 4px rgba(0,0,0,0.6);
+    background: #000;
+}
+
+/* ===================================================
+   QUESTION PANEL
+   =================================================== */
+
+#question-panel {
+    padding: 24px;
+}
+
+.question-container {
+    max-width: 640px;
+    width: 100%;
+}
+
+#question-text {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: 28px;
+    line-height: 1.6;
+    letter-spacing: 0.04em;
+    padding: 20px;
+    background: var(--panel-surface);
+    border: 1px solid var(--bezel-outer);
+    border-radius: 6px;
+}
+
+#answer-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.answer-btn {
+    background: var(--answer-bg);
+    border: 1px solid var(--answer-border);
+    color: var(--text-primary);
+    padding: 18px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: var(--font-cockpit);
+    font-size: 0.85rem;
+    text-align: left;
+    line-height: 1.5;
+    transition: background 0.12s, border-color 0.12s, transform 0.1s;
+    letter-spacing: 0.02em;
+}
+
+.answer-btn:hover:not(:disabled) {
+    background: var(--answer-hover);
+    border-color: var(--accent-blue);
+    transform: translateY(-1px);
+}
+
+.answer-btn.correct {
+    background: var(--answer-correct);
+    border-color: var(--border-correct);
+}
+
+.answer-btn.wrong {
+    background: var(--answer-wrong);
+    border-color: var(--border-wrong);
+}
+
+.answer-btn:disabled {
+    cursor: default;
+    transform: none;
+}
+
+.answer-letter {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    line-height: 22px;
+    text-align: center;
+    background: var(--bezel-outer);
+    border-radius: 3px;
+    font-size: 0.75rem;
+    margin-right: 8px;
+    font-weight: 700;
+    vertical-align: middle;
+}
+
+.answer-btn.correct .answer-letter {
+    background: var(--border-correct);
+    color: #000;
+}
+
+.answer-btn.wrong .answer-letter {
+    background: var(--border-wrong);
+    color: #fff;
+}
+
+/* ===================================================
+   FEEDBACK PANEL
+   =================================================== */
+
+.feedback-container {
+    max-width: 580px;
+    width: 100%;
+    text-align: center;
+    padding: 32px 24px;
+}
+
+#feedback-icon {
+    font-size: 3.5rem;
+    line-height: 1;
+    margin-bottom: 12px;
+}
+
+#feedback-result {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+}
+
+#feedback-result.correct {
+    color: var(--accent-green);
+}
+
+#feedback-result.wrong {
+    color: var(--accent-red);
+}
+
+#feedback-explanation {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    line-height: 1.75;
+    margin-bottom: 32px;
+    padding: 20px;
+    background: var(--panel-surface);
+    border: 1px solid var(--bezel-outer);
+    border-left: 3px solid var(--accent-amber);
+    border-radius: 4px;
+    text-align: left;
+}
+
+/* ===================================================
+   COMPLETE SCREEN
+   =================================================== */
+
+.complete-content {
+    text-align: center;
+    max-width: 480px;
+    padding: 40px 24px;
+}
+
+.complete-icon {
+    font-size: 56px;
+    line-height: 1;
+    margin-bottom: 16px;
+    filter: drop-shadow(0 0 16px var(--accent-green));
+}
+
+.complete-content h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-amber);
+    margin-bottom: 24px;
+}
+
+#final-score {
+    font-size: 4rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+#final-grade {
+    font-size: 1rem;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    margin-bottom: 36px;
+}
+
+/* ===================================================
+   RESPONSIVE — SMALL SCREENS
+   =================================================== */
+
+@media (max-width: 640px) {
+    #instrument-panel {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+        padding: 14px;
+    }
+
+    #answer-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .intro-content h1 {
+        font-size: 1.8rem;
+    }
+
+    #panel-header {
+        padding: 8px 14px;
+    }
+}
+
+@media (max-width: 400px) {
+    #instrument-panel {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 10px;
+    }
+}
+
+    </style>
+</head>
+<body>
+
+    <!-- Intro Screen -->
+    <div id="intro-screen" class="screen">
+        <div class="intro-content">
+            <div class="intro-logo">✈</div>
+            <h1>Six Pack<br>Instrument Trainer</h1>
+            <p class="intro-sub">Watch the instruments animate for <strong>3 seconds</strong>, then identify the flight condition from the multiple choice options.</p>
+            <div class="intro-instruments">
+                <span>ASI</span><span>AI</span><span>ALT</span>
+                <span>TC</span><span>HDG</span><span>VSI</span>
+            </div>
+            <button id="btn-start" class="btn-primary">Begin Training</button>
+        </div>
+    </div>
+
+    <!-- Main Trainer Panel -->
+    <div id="trainer-panel" class="screen hidden">
+        <div id="panel-header">
+            <div class="header-left">
+                <span class="header-label">SCENARIO</span>
+                <span id="scenario-counter">1 / 30</span>
+            </div>
+            <div class="header-center">
+                <span id="status-text">Observe the instruments...</span>
+            </div>
+            <div class="header-right">
+                <span class="header-label">SCORE</span>
+                <span id="score-tracker">0 / 0</span>
+            </div>
+        </div>
+
+        <div id="progress-bar-wrap">
+            <div id="progress-bar"><div id="progress-fill"></div></div>
+        </div>
+
+        <!-- Six Instrument Panel -->
+        <div id="instrument-panel">
+            <div class="instrument-slot" id="slot-asi">
+                <div class="instrument-label">AIRSPEED</div>
+                <svg id="svg-asi" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"></svg>
+                <div class="instrument-unit">KNOTS</div>
+            </div>
+            <div class="instrument-slot" id="slot-ai">
+                <div class="instrument-label">ATTITUDE</div>
+                <svg id="svg-ai" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"></svg>
+                <div class="instrument-unit">&nbsp;</div>
+            </div>
+            <div class="instrument-slot" id="slot-alt">
+                <div class="instrument-label">ALTIMETER</div>
+                <svg id="svg-alt" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"></svg>
+                <div class="instrument-unit">FEET</div>
+            </div>
+            <div class="instrument-slot" id="slot-tc">
+                <div class="instrument-label">TURN COORD</div>
+                <svg id="svg-tc" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"></svg>
+                <div class="instrument-unit">2 MIN TURN</div>
+            </div>
+            <div class="instrument-slot" id="slot-di">
+                <div class="instrument-label">HEADING</div>
+                <svg id="svg-di" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"></svg>
+                <div class="instrument-unit">MAG</div>
+            </div>
+            <div class="instrument-slot" id="slot-vsi">
+                <div class="instrument-label">VERT SPEED</div>
+                <svg id="svg-vsi" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"></svg>
+                <div class="instrument-unit">FT / MIN</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Question Overlay -->
+    <div id="question-panel" class="screen hidden">
+        <div class="question-container">
+            <div id="question-text"></div>
+            <div id="answer-grid"></div>
+        </div>
+    </div>
+
+    <!-- Feedback Overlay -->
+    <div id="feedback-panel" class="screen hidden">
+        <div class="feedback-container">
+            <div id="feedback-icon"></div>
+            <div id="feedback-result"></div>
+            <div id="feedback-explanation"></div>
+            <button id="btn-next" class="btn-primary">Next Scenario &rarr;</button>
+        </div>
+    </div>
+
+    <!-- Complete Screen -->
+    <div id="complete-screen" class="screen hidden">
+        <div class="complete-content">
+            <div class="complete-icon">✈</div>
+            <h2>Training Complete</h2>
+            <div id="final-score"></div>
+            <div id="final-grade"></div>
+            <button id="btn-retry" class="btn-primary">Fly Again</button>
+        </div>
+    </div>
+
+    <script>
+/* ===================================================
+   INSTRUMENTS.JS — SVG Six Pack Instrument Rendering
+   All instruments use a 200×200 viewBox, center (100,100)
+   =================================================== */
+
+window.Instruments = {};
+
+// ---------------------------------------------------
+// SVG Utilities
+// ---------------------------------------------------
+
+function svgEl(tag, attrs = {}) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (const [k, v] of Object.entries(attrs)) {
+        el.setAttribute(k, v);
+    }
+    return el;
+}
+
+// 0° = 12 o'clock, positive = clockwise
+function polarToXY(cx, cy, r, angleDeg) {
+    const rad = (angleDeg - 90) * Math.PI / 180;
+    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+
+function makeArcPath(cx, cy, r, startAngle, endAngle) {
+    const s = polarToXY(cx, cy, r, startAngle);
+    const e = polarToXY(cx, cy, r, endAngle);
+    const large = (endAngle - startAngle) > 180 ? 1 : 0;
+    return `M ${s.x} ${s.y} A ${r} ${r} 0 ${large} 1 ${e.x} ${e.y}`;
+}
+
+function drawBezel(svg) {
+    // Outer black ring
+    svg.appendChild(svgEl('circle', { cx: 100, cy: 100, r: 99, fill: '#0a0a0a' }));
+    // Bezel gradient ring
+    svg.appendChild(svgEl('circle', { cx: 100, cy: 100, r: 96, fill: 'none', stroke: '#3a3a3a', 'stroke-width': 6 }));
+    svg.appendChild(svgEl('circle', { cx: 100, cy: 100, r: 93, fill: '#111' }));
+}
+
+function drawCenterDot(svg, r = 4, color = '#ddd') {
+    svg.appendChild(svgEl('circle', { cx: 100, cy: 100, r, fill: color }));
+}
+
+// ---------------------------------------------------
+// Base Instrument Class
+// ---------------------------------------------------
+
+class Instrument {
+    constructor(svgElement) {
+        this.svg = svgElement;
+        this.svg.style.background = '#111';
+    }
+    init() {}
+    setState(state) { this.render(state); }
+    render(state) {}
+}
+
+// ---------------------------------------------------
+// AIRSPEED INDICATOR (ASI)
+// ---------------------------------------------------
+
+window.Instruments.ASI = class ASI extends Instrument {
+    init() {
+        const svg = this.svg;
+        drawBezel(svg);
+
+        // Face background
+        svg.appendChild(svgEl('circle', { cx: 100, cy: 100, r: 90, fill: '#0d0d0d' }));
+
+        // Color arcs — drawn on radius 80, sweep: 0kts at -130°, 220kts at +130°
+        const ktsToAngle = k => -130 + (k / 220) * 260;
+        const arcR = 80, arcW = 8;
+
+        // White arc (flap range): 40-85 kts
+        svg.appendChild(svgEl('path', {
+            d: makeArcPath(100, 100, arcR - 4, ktsToAngle(40), ktsToAngle(85)),
+            stroke: '#ffffff', 'stroke-width': arcW - 2, fill: 'none', 'stroke-linecap': 'round'
+        }));
+        // Green arc: 65-165 kts
+        svg.appendChild(svgEl('path', {
+            d: makeArcPath(100, 100, arcR, ktsToAngle(65), ktsToAngle(165)),
+            stroke: '#00cc44', 'stroke-width': arcW, fill: 'none'
+        }));
+        // Yellow arc: 165-200 kts
+        svg.appendChild(svgEl('path', {
+            d: makeArcPath(100, 100, arcR, ktsToAngle(165), ktsToAngle(200)),
+            stroke: '#ffcc00', 'stroke-width': arcW, fill: 'none'
+        }));
+        // Red radial tick at Vne (200 kts)
+        const vne = polarToXY(100, 100, arcR + 5, ktsToAngle(200));
+        const vne2 = polarToXY(100, 100, arcR - arcW - 2, ktsToAngle(200));
+        svg.appendChild(svgEl('line', {
+            x1: vne2.x, y1: vne2.y, x2: vne.x, y2: vne.y,
+            stroke: '#ff2222', 'stroke-width': 3
+        }));
+
+        // Tick marks and labels
+        for (let kts = 0; kts <= 220; kts += 10) {
+            const angle = ktsToAngle(kts);
+            const isMajor = kts % 20 === 0;
+            const outer = polarToXY(100, 100, 88, angle);
+            const inner = polarToXY(100, 100, isMajor ? 74 : 80, angle);
+            svg.appendChild(svgEl('line', {
+                x1: inner.x, y1: inner.y, x2: outer.x, y2: outer.y,
+                stroke: '#bbb', 'stroke-width': isMajor ? 2 : 1
+            }));
+            if (isMajor && kts >= 40 && kts <= 200) {
+                const lp = polarToXY(100, 100, 65, angle);
+                const t = svgEl('text', {
+                    x: lp.x, y: lp.y,
+                    'text-anchor': 'middle',
+                    'dominant-baseline': 'middle',
+                    fill: '#ccc',
+                    'font-size': '10',
+                    'font-family': 'Courier New'
+                });
+                t.textContent = kts;
+                svg.appendChild(t);
+            }
+        }
+
+        // Needle — points toward 12 o'clock at 0°, rotated by transform
+        const needleG = svgEl('g', { id: `${this.svg.id}-needle`, transform: 'rotate(0, 100, 100)' });
+        needleG.appendChild(svgEl('polygon', {
+            points: '100,22 97,105 103,105',
+            fill: '#ffffff'
+        }));
+        needleG.appendChild(svgEl('polygon', {
+            points: '100,178 97,105 103,105',
+            fill: '#555'
+        }));
+        svg.appendChild(needleG);
+        drawCenterDot(svg, 5, '#ccc');
+
+        this._needle = needleG;
+        this._ktsToAngle = ktsToAngle;
+    }
+
+    render({ airspeed }) {
+        const angle = this._ktsToAngle(Math.max(0, Math.min(220, airspeed)));
+        this._needle.setAttribute('transform', `rotate(${angle}, 100, 100)`);
+    }
+};
+
+// ---------------------------------------------------
+// ATTITUDE INDICATOR (AI)
+// ---------------------------------------------------
+
+window.Instruments.AI = class AI extends Instrument {
+    init() {
+        const svg = this.svg;
+        drawBezel(svg);
+
+        // Clip circle for gyro world
+        const defs = svgEl('defs');
+        const clip = svgEl('clipPath', { id: `${svg.id}-clip` });
+        clip.appendChild(svgEl('circle', { cx: 100, cy: 100, r: 88 }));
+        defs.appendChild(clip);
+        svg.appendChild(defs);
+
+        // World group (sky + earth), clipped
+        const worldG = svgEl('g', { 'clip-path': `url(#${svg.id}-clip)` });
+        const innerG = svgEl('g', { id: `${svg.id}-world` });
+
+        // Earth (bottom half — appears below horizon)
+        innerG.appendChild(svgEl('rect', {
+            x: -200, y: 0, width: 600, height: 400,
+            fill: '#7a4a20'
+        }));
+        // Sky (top half)
+        innerG.appendChild(svgEl('rect', {
+            x: -200, y: -400, width: 600, height: 400,
+            fill: '#1a5fa0'
+        }));
+        // Horizon line
+        innerG.appendChild(svgEl('rect', {
+            x: -200, y: -2, width: 600, height: 4,
+            fill: '#ffffff'
+        }));
+
+        // Pitch lines
+        const pitchAngles = [-20, -15, -10, -5, 5, 10, 15, 20];
+        pitchAngles.forEach(deg => {
+            const py = -(deg * 2.5);
+            const isLong = Math.abs(deg) % 10 === 0;
+            const w = isLong ? 50 : 30;
+            innerG.appendChild(svgEl('line', {
+                x1: 100 - w, y1: 100 + py,
+                x2: 100 + w, y2: 100 + py,
+                stroke: '#ffffff', 'stroke-width': 1.5
+            }));
+            // Degree labels on the long marks
+            if (isLong) {
+                const label = svgEl('text', {
+                    x: 100 - w - 8, y: 100 + py,
+                    'text-anchor': 'end',
+                    'dominant-baseline': 'middle',
+                    fill: '#ffffff',
+                    'font-size': '9',
+                    'font-family': 'Courier New'
+                });
+                label.textContent = Math.abs(deg);
+                innerG.appendChild(label);
+            }
+        });
+
+        worldG.appendChild(innerG);
+        svg.appendChild(worldG);
+
+        // Bank angle arc (fixed, on top of clip)
+        const bankAngles = [-60, -45, -30, -20, -10, 0, 10, 20, 30, 45, 60];
+        bankAngles.forEach(deg => {
+            // arc goes from -60° to +60° centered at top of dial
+            const angle = deg - 90; // offset so 0° is at top
+            const outer = polarToXY(100, 100, 88, deg - 90 + (-90 + 90));
+            // actually: bank arc is at top, 0 bank = 12 o'clock
+            // tick at top of instrument
+            const r1 = 88, r2 = deg % 30 === 0 ? 80 : 83;
+            const p1 = polarToXY(100, 100, r1, deg - 90);
+            const p2 = polarToXY(100, 100, r2, deg - 90);
+            svg.appendChild(svgEl('line', {
+                x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y,
+                stroke: '#fff', 'stroke-width': deg === 0 ? 2.5 : 1.5
+            }));
+        });
+
+        // Fixed bank pointer triangle at top
+        const bp = svgEl('polygon', {
+            points: '100,16 96,24 104,24',
+            fill: '#ffffff'
+        });
+        svg.appendChild(bp);
+
+        // Fixed miniature aircraft symbol
+        const acG = svgEl('g');
+        // fuselage dot
+        acG.appendChild(svgEl('circle', { cx: 100, cy: 100, r: 3, fill: '#f0a500' }));
+        // left wing
+        acG.appendChild(svgEl('rect', { x: 68, y: 98, width: 26, height: 4, rx: 2, fill: '#f0a500' }));
+        // right wing
+        acG.appendChild(svgEl('rect', { x: 106, y: 98, width: 26, height: 4, rx: 2, fill: '#f0a500' }));
+        // tail
+        acG.appendChild(svgEl('rect', { x: 97, y: 108, width: 6, height: 10, rx: 2, fill: '#f0a500' }));
+        svg.appendChild(acG);
+
+        // Moving bank pointer (inverted triangle, moves with bank)
+        const movingBankG = svgEl('g', { id: `${svg.id}-bank-ptr` });
+        movingBankG.appendChild(svgEl('polygon', {
+            points: '100,28 96,20 104,20',
+            fill: '#f0a500'
+        }));
+        svg.appendChild(movingBankG);
+
+        this._world = innerG;
+        this._bankPtr = movingBankG;
+    }
+
+    render({ pitch, bank }) {
+        const pitchPx = pitch * 2.5;
+        this._world.setAttribute('transform',
+            `rotate(${-bank}, 100, 100) translate(0, ${-pitchPx})`);
+        this._bankPtr.setAttribute('transform',
+            `rotate(${bank}, 100, 100)`);
+    }
+};
+
+// ---------------------------------------------------
+// ALTIMETER
+// ---------------------------------------------------
+
+window.Instruments.ALT = class ALT extends Instrument {
+    init() {
+        const svg = this.svg;
+        drawBezel(svg);
+        svg.appendChild(svgEl('circle', { cx: 100, cy: 100, r: 90, fill: '#0d0d0d' }));
+
+        // Scale markings — 0-9 (each = 100 ft, full rotation = 1000 ft)
+        for (let i = 0; i < 10; i++) {
+            const angle = (i / 10) * 360;
+            const outer = polarToXY(100, 100, 86, angle);
+            const inner = polarToXY(100, 100, 78, angle);
+            svg.appendChild(svgEl('line', {
+                x1: inner.x, y1: inner.y, x2: outer.x, y2: outer.y,
+                stroke: '#ccc', 'stroke-width': 2
+            }));
+            // Minor ticks at every 2 (20 ft)
+            for (let j = 1; j < 5; j++) {
+                const minAngle = angle + (j / 5) * 36;
+                const mo = polarToXY(100, 100, 86, minAngle);
+                const mi = polarToXY(100, 100, 82, minAngle);
+                svg.appendChild(svgEl('line', {
+                    x1: mi.x, y1: mi.y, x2: mo.x, y2: mo.y,
+                    stroke: '#777', 'stroke-width': 1
+                }));
+            }
+            // Number label
+            const lp = polarToXY(100, 100, 68, angle);
+            const t = svgEl('text', {
+                x: lp.x, y: lp.y,
+                'text-anchor': 'middle', 'dominant-baseline': 'middle',
+                fill: '#ccc', 'font-size': '12', 'font-family': 'Courier New', 'font-weight': 'bold'
+            });
+            t.textContent = i;
+            svg.appendChild(t);
+        }
+
+        // Kollsman window (cosmetic barometric pressure window at 3 o'clock)
+        const kw = svgEl('g');
+        kw.appendChild(svgEl('rect', { x: 138, y: 92, width: 32, height: 16, rx: 3, fill: '#1a1a2e', stroke: '#444', 'stroke-width': 1 }));
+        const kwText = svgEl('text', {
+            x: 154, y: 100, 'text-anchor': 'middle', 'dominant-baseline': 'middle',
+            fill: '#8888cc', 'font-size': '8', 'font-family': 'Courier New'
+        });
+        kwText.textContent = '29.92';
+        kw.appendChild(kwText);
+        svg.appendChild(kw);
+
+        // 10,000 ft needle — short, wide
+        const n10k = svgEl('g', { id: `${svg.id}-n10k` });
+        n10k.appendChild(svgEl('polygon', {
+            points: '100,42 97,100 103,100',
+            fill: '#888'
+        }));
+        n10k.appendChild(svgEl('polygon', {
+            points: '100,158 97,100 103,100',
+            fill: '#444'
+        }));
+        svg.appendChild(n10k);
+
+        // 1,000 ft needle — medium length
+        const n1k = svgEl('g', { id: `${svg.id}-n1k` });
+        n1k.appendChild(svgEl('polygon', {
+            points: '100,30 97.5,100 102.5,100',
+            fill: '#ccc'
+        }));
+        n1k.appendChild(svgEl('polygon', {
+            points: '100,165 97.5,100 102.5,100',
+            fill: '#444'
+        }));
+        svg.appendChild(n1k);
+
+        // 100 ft needle — long, thin
+        const n100 = svgEl('g', { id: `${svg.id}-n100` });
+        n100.appendChild(svgEl('polygon', {
+            points: '100,22 98.5,100 101.5,100',
+            fill: '#ffffff'
+        }));
+        n100.appendChild(svgEl('polygon', {
+            points: '100,160 98.5,100 101.5,100',
+            fill: '#555'
+        }));
+        svg.appendChild(n100);
+
+        drawCenterDot(svg, 5, '#ccc');
+
+        this._n10k = n10k;
+        this._n1k  = n1k;
+        this._n100 = n100;
+    }
+
+    render({ altitude }) {
+        const alt = Math.max(0, altitude);
+        const a100  = (alt % 1000)  / 1000  * 360;
+        const a1k   = (alt % 10000) / 10000 * 360;
+        const a10k  = alt           / 100000 * 360;
+        this._n100.setAttribute('transform',  `rotate(${a100},  100, 100)`);
+        this._n1k.setAttribute('transform',   `rotate(${a1k},   100, 100)`);
+        this._n10k.setAttribute('transform',  `rotate(${a10k},  100, 100)`);
+    }
+};
+
+// ---------------------------------------------------
+// TURN COORDINATOR (TC)
+// ---------------------------------------------------
+
+window.Instruments.TC = class TC extends Instrument {
+    init() {
+        const svg = this.svg;
+        drawBezel(svg);
+        svg.appendChild(svgEl('circle', { cx: 100, cy: 100, r: 90, fill: '#0f0f1a' }));
+
+        // Standard rate marks (wings at ±20° = standard rate = 3°/s)
+        const marks = [
+            { x: 52, label: 'L' },
+            { x: 148, label: 'R' }
+        ];
+        marks.forEach(m => {
+            svg.appendChild(svgEl('line', {
+                x1: m.x, y1: 55, x2: m.x, y2: 70,
+                stroke: '#ffffff', 'stroke-width': 2
+            }));
+        });
+
+        // "L" and "R" labels
+        const lText = svgEl('text', { x: 38, y: 68, 'text-anchor': 'middle', 'dominant-baseline': 'middle', fill: '#ccc', 'font-size': '14', 'font-family': 'Courier New', 'font-weight': 'bold' });
+        lText.textContent = 'L';
+        svg.appendChild(lText);
+        const rText = svgEl('text', { x: 162, y: 68, 'text-anchor': 'middle', 'dominant-baseline': 'middle', fill: '#ccc', 'font-size': '14', 'font-family': 'Courier New', 'font-weight': 'bold' });
+        rText.textContent = 'R';
+        svg.appendChild(rText);
+
+        // Miniature aircraft (rotates to show bank/turn rate)
+        const acG = svgEl('g', { id: `${svg.id}-aircraft` });
+        // fuselage
+        acG.appendChild(svgEl('line', { x1: 100, y1: 74, x2: 100, y2: 110, stroke: '#ffffff', 'stroke-width': 3, 'stroke-linecap': 'round' }));
+        // left wing
+        acG.appendChild(svgEl('line', { x1: 60, y1: 95, x2: 100, y2: 95, stroke: '#ffffff', 'stroke-width': 4, 'stroke-linecap': 'round' }));
+        // right wing
+        acG.appendChild(svgEl('line', { x1: 100, y1: 95, x2: 140, y2: 95, stroke: '#ffffff', 'stroke-width': 4, 'stroke-linecap': 'round' }));
+        // tail horizontal
+        acG.appendChild(svgEl('line', { x1: 88, y1: 106, x2: 112, y2: 106, stroke: '#ffffff', 'stroke-width': 2.5, 'stroke-linecap': 'round' }));
+        svg.appendChild(acG);
+
+        // Slip/skid inclinometer tube (curved bottom area)
+        const tubeY = 148;
+        svg.appendChild(svgEl('path', {
+            d: `M 62,${tubeY} Q 100,${tubeY - 10} 138,${tubeY}`,
+            stroke: '#555', 'stroke-width': 14, fill: 'none', 'stroke-linecap': 'round'
+        }));
+        svg.appendChild(svgEl('path', {
+            d: `M 62,${tubeY} Q 100,${tubeY - 10} 138,${tubeY}`,
+            stroke: '#222', 'stroke-width': 10, fill: 'none', 'stroke-linecap': 'round'
+        }));
+        // Center mark on tube
+        svg.appendChild(svgEl('line', {
+            x1: 100, y1: tubeY - 12, x2: 100, y2: tubeY + 2,
+            stroke: '#444', 'stroke-width': 1.5
+        }));
+        // Outer marks
+        [-20, 20].forEach(dx => {
+            svg.appendChild(svgEl('line', {
+                x1: 100 + dx, y1: tubeY - 11, x2: 100 + dx, y2: tubeY + 1,
+                stroke: '#444', 'stroke-width': 1.5
+            }));
+        });
+
+        // Ball (slip/skid indicator)
+        const ball = svgEl('circle', {
+            id: `${svg.id}-ball`,
+            cx: 100, cy: tubeY - 4,
+            r: 7, fill: '#111',
+            stroke: '#aaa', 'stroke-width': 1.5
+        });
+        svg.appendChild(ball);
+
+        this._aircraft = acG;
+        this._ball = ball;
+        this._tubeY = tubeY;
+    }
+
+    render({ turnRate, ballOffset }) {
+        // Standard rate = 3°/s → wing tilt 20°
+        const wingAngle = Math.max(-30, Math.min(30, turnRate * (20 / 3)));
+        this._aircraft.setAttribute('transform', `rotate(${wingAngle}, 100, 95)`);
+
+        // Ball offset: -1 (full left) to +1 (full right)
+        const bx = 100 + (ballOffset * 22);
+        this._ball.setAttribute('cx', bx);
+        this._ball.setAttribute('cy', this._tubeY - 4);
+    }
+};
+
+// ---------------------------------------------------
+// HEADING INDICATOR / DIRECTIONAL GYRO (DI)
+// ---------------------------------------------------
+
+window.Instruments.DI = class DI extends Instrument {
+    init() {
+        const svg = this.svg;
+        drawBezel(svg);
+
+        // Clip
+        const defs = svgEl('defs');
+        const clip = svgEl('clipPath', { id: `${svg.id}-clip` });
+        clip.appendChild(svgEl('circle', { cx: 100, cy: 100, r: 88 }));
+        defs.appendChild(clip);
+        svg.appendChild(defs);
+
+        svg.appendChild(svgEl('circle', { cx: 100, cy: 100, r: 88, fill: '#111' }));
+
+        // Compass rose group — the whole thing rotates
+        const roseG = svgEl('g', {
+            id: `${svg.id}-rose`,
+            'clip-path': `url(#${svg.id}-clip)`
+        });
+
+        // Cardinal and intercardinal labels
+        const cardinals = [
+            { h: 0,   l: 'N' },
+            { h: 90,  l: 'E' },
+            { h: 180, l: 'S' },
+            { h: 270, l: 'W' },
+            { h: 45,  l: 'NE' },
+            { h: 135, l: 'SE' },
+            { h: 225, l: 'SW' },
+            { h: 315, l: 'NW' }
+        ];
+
+        // Tick marks every 5°
+        for (let h = 0; h < 360; h += 5) {
+            const isMajor30 = h % 30 === 0;
+            const isMajor10 = h % 10 === 0;
+            const r1 = 88;
+            const r2 = isMajor30 ? 72 : isMajor10 ? 78 : 83;
+            const p1 = polarToXY(100, 100, r1, h);
+            const p2 = polarToXY(100, 100, r2, h);
+            roseG.appendChild(svgEl('line', {
+                x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y,
+                stroke: isMajor30 ? '#ddd' : '#666',
+                'stroke-width': isMajor30 ? 2 : 1
+            }));
+            // Every 30°, draw degree number (except cardinal directions)
+            if (isMajor30) {
+                const isCardinal = cardinals.slice(0, 4).some(c => c.h === h);
+                if (!isCardinal) {
+                    const lp = polarToXY(100, 100, 63, h);
+                    const t = svgEl('text', {
+                        x: lp.x, y: lp.y,
+                        'text-anchor': 'middle', 'dominant-baseline': 'middle',
+                        fill: '#aaa', 'font-size': '9', 'font-family': 'Courier New'
+                    });
+                    t.textContent = h / 10 < 10 ? '0' + (h / 10) : '' + (h / 10);
+                    roseG.appendChild(t);
+                }
+            }
+        }
+
+        // Cardinal and intercardinal labels
+        cardinals.forEach(({ h, l }) => {
+            const lp = polarToXY(100, 100, 63, h);
+            const isMain = l.length === 1;
+            const t = svgEl('text', {
+                x: lp.x, y: lp.y,
+                'text-anchor': 'middle', 'dominant-baseline': 'middle',
+                fill: l === 'N' ? '#ff4444' : '#dddddd',
+                'font-size': isMain ? '13' : '9',
+                'font-family': 'Courier New',
+                'font-weight': 'bold'
+            });
+            t.textContent = l;
+            roseG.appendChild(t);
+        });
+
+        svg.appendChild(roseG);
+
+        // Fixed lubber line (reference index at 12 o'clock — what the aircraft is pointing at)
+        svg.appendChild(svgEl('polygon', {
+            points: '100,14 95,26 105,26',
+            fill: '#f0a500'
+        }));
+        svg.appendChild(svgEl('polygon', {
+            points: '100,186 95,174 105,174',
+            fill: '#444'
+        }));
+
+        // Center
+        drawCenterDot(svg, 4, '#888');
+
+        this._rose = roseG;
+    }
+
+    render({ heading }) {
+        // Rose rotates opposite to heading (turning right → rose turns left)
+        this._rose.setAttribute('transform', `rotate(${-heading}, 100, 100)`);
+    }
+};
+
+// ---------------------------------------------------
+// VERTICAL SPEED INDICATOR (VSI)
+// ---------------------------------------------------
+
+window.Instruments.VSI = class VSI extends Instrument {
+    init() {
+        const svg = this.svg;
+        drawBezel(svg);
+        svg.appendChild(svgEl('circle', { cx: 100, cy: 100, r: 90, fill: '#0d0d0d' }));
+
+        // VSI scale: 0 ft/min = 9 o'clock (270°/left)
+        // +2000 = 12 o'clock (0°/top)
+        // -2000 = slightly past 6 o'clock but we'll use symmetric ±150° from 9 o'clock
+        // Layout: 9 o'clock = 0, up-clockwise = climb, down-clockwise = descent
+        // Angle for vspeed: 270 + (vspeed/2000)*150 degrees (from SVG top/12 o'clock = 0°)
+        const vsiToAngle = vs => 270 - (vs / 2000) * 150;
+
+        const labels = [
+            { vs: 2000, label: '2' },
+            { vs: 1000, label: '1' },
+            { vs: 500,  label: '½' },
+            { vs: 0,    label: '0' },
+            { vs: -500, label: '½' },
+            { vs: -1000,label: '1' },
+            { vs: -2000,label: '2' }
+        ];
+
+        // Background arc (scale extent)
+        svg.appendChild(svgEl('path', {
+            d: makeArcPath(100, 100, 80, vsiToAngle(2000), vsiToAngle(-2000)),
+            stroke: '#333', 'stroke-width': 10, fill: 'none'
+        }));
+
+        // Tick marks
+        const ticks = [2000, 1500, 1000, 500, 0, -500, -1000, -1500, -2000];
+        ticks.forEach(vs => {
+            const angle = vsiToAngle(vs);
+            const isMajor = vs % 1000 === 0;
+            const r1 = 85, r2 = isMajor ? 72 : 78;
+            const p1 = polarToXY(100, 100, r1, angle);
+            const p2 = polarToXY(100, 100, r2, angle);
+            svg.appendChild(svgEl('line', {
+                x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y,
+                stroke: '#ccc', 'stroke-width': isMajor ? 2.5 : 1.5
+            }));
+        });
+
+        // Labels
+        labels.forEach(({ vs, label }) => {
+            const angle = vsiToAngle(vs);
+            const lp = polarToXY(100, 100, 61, angle);
+            const t = svgEl('text', {
+                x: lp.x, y: lp.y,
+                'text-anchor': 'middle', 'dominant-baseline': 'middle',
+                fill: '#ccc', 'font-size': '11', 'font-family': 'Courier New',
+                'font-weight': 'bold'
+            });
+            t.textContent = label;
+            svg.appendChild(t);
+        });
+
+        // UP / DN labels
+        const upT = svgEl('text', { x: 75, y: 48, 'text-anchor': 'middle', fill: '#888', 'font-size': '9', 'font-family': 'Courier New' });
+        upT.textContent = 'UP';
+        svg.appendChild(upT);
+        const dnT = svgEl('text', { x: 75, y: 152, 'text-anchor': 'middle', fill: '#888', 'font-size': '9', 'font-family': 'Courier New' });
+        dnT.textContent = 'DN';
+        svg.appendChild(dnT);
+
+        // "×100" label
+        const unitT = svgEl('text', { x: 100, y: 128, 'text-anchor': 'middle', fill: '#666', 'font-size': '8', 'font-family': 'Courier New' });
+        unitT.textContent = '×100 FT/MIN';
+        svg.appendChild(unitT);
+
+        // Needle
+        const needleG = svgEl('g', { id: `${svg.id}-needle` });
+        needleG.appendChild(svgEl('polygon', {
+            points: '100,26 97.5,105 102.5,105',
+            fill: '#ffffff'
+        }));
+        needleG.appendChild(svgEl('polygon', {
+            points: '100,158 97.5,105 102.5,105',
+            fill: '#555'
+        }));
+        svg.appendChild(needleG);
+        drawCenterDot(svg, 5, '#ccc');
+
+        this._needle = needleG;
+        this._vsiToAngle = vsiToAngle;
+    }
+
+    render({ vspeed }) {
+        const clamped = Math.max(-2000, Math.min(2000, vspeed));
+        const angle = this._vsiToAngle(clamped);
+        this._needle.setAttribute('transform', `rotate(${angle}, 100, 100)`);
+    }
+};
+
+    </script>
+    <script>
+/* ===================================================
+   SCENARIOS.JS — Six Pack Scenario Definitions
+   30 real-world scenarios, randomized each session.
+
+   Instrument state keys:
+     asi:  { airspeed }               — knots
+     ai:   { pitch, bank }            — degrees (pitch+ = nose up, bank+ = right wing down)
+     alt:  { altitude }               — feet
+     tc:   { turnRate, ballOffset }   — °/sec, -1..+1
+     di:   { heading }                — degrees 0-360 magnetic
+     vsi:  { vspeed }                 — ft/min
+   =================================================== */
+
+window.SCENARIOS = [
+
+    // --------------------------------------------------
+    // 1. STRAIGHT AND LEVEL CRUISE
+    // --------------------------------------------------
+    {
+        id: 'straight-level',
+        name: 'Straight and Level Cruise',
+        question: 'What flight condition do these instruments indicate?',
+        answers: [
+            { text: 'Straight and level flight at cruise altitude', correct: true },
+            { text: 'Shallow climbing turn to the left', correct: false },
+            { text: 'Descending toward pattern altitude', correct: false },
+            { text: 'Level right turn at cruise speed', correct: false }
+        ],
+        explanation: 'All instruments are stable and consistent. The AI shows level wings and a slight nose-up cruise attitude (~2°). Airspeed is steady in the green arc. Altimeter is not moving. VSI reads zero. DI heading is constant. This is the classic picture of straight and level flight.',
+        instruments: {
+            asi: { start: { airspeed: 120 }, end: { airspeed: 120 } },
+            ai:  { start: { pitch: 2,  bank: 0  }, end: { pitch: 2,  bank: 0  } },
+            alt: { start: { altitude: 5500 }, end: { altitude: 5500 } },
+            tc:  { start: { turnRate: 0,  ballOffset: 0 }, end: { turnRate: 0,  ballOffset: 0 } },
+            di:  { start: { heading: 270 }, end: { heading: 270 } },
+            vsi: { start: { vspeed: 0   }, end: { vspeed: 0   } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 2. CLIMBING LEFT TURN
+    // --------------------------------------------------
+    {
+        id: 'climbing-left-turn',
+        name: 'Climbing Left Turn',
+        question: 'What maneuver is being performed?',
+        answers: [
+            { text: 'Straight climb with power increase', correct: false },
+            { text: 'Climbing left turn', correct: true },
+            { text: 'Descending right turn', correct: false },
+            { text: 'Level coordinated left turn', correct: false }
+        ],
+        explanation: 'The AI shows nose-high pitch (~8°) and left bank (~20°). Airspeed is decreasing as energy is being converted to altitude. The altimeter is rising, VSI shows a 700 ft/min climb, and the DI heading is turning left. The turn coordinator ball is centered — coordinated flight.',
+        instruments: {
+            asi: { start: { airspeed: 120 }, end: { airspeed: 95  } },
+            ai:  { start: { pitch: 2,  bank: 0   }, end: { pitch: 8,  bank: -20 } },
+            alt: { start: { altitude: 4800 }, end: { altitude: 5100 } },
+            tc:  { start: { turnRate: 0,  ballOffset: 0 }, end: { turnRate: -3, ballOffset: 0  } },
+            di:  { start: { heading: 270 }, end: { heading: 252 } },
+            vsi: { start: { vspeed: 100 }, end: { vspeed: 700 } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 3. DESCENDING RIGHT TURN
+    // --------------------------------------------------
+    {
+        id: 'descending-right-turn',
+        name: 'Descending Right Turn',
+        question: 'What maneuver is being performed?',
+        answers: [
+            { text: 'Climbing right turn', correct: false },
+            { text: 'Level right turn with speed reduction', correct: false },
+            { text: 'Descending right turn', correct: true },
+            { text: 'Straight descent with right crosswind correction', correct: false }
+        ],
+        explanation: 'The AI shows a nose-low attitude (~5° below horizon) and right bank (~25°). Airspeed is increasing as the nose drops — gravity adds a forward component. The altimeter is falling, VSI is negative (~600 ft/min down), and the DI shows a heading change to the right.',
+        instruments: {
+            asi: { start: { airspeed: 120 }, end: { airspeed: 145 } },
+            ai:  { start: { pitch: 2,  bank: 0  }, end: { pitch: -5, bank: 25  } },
+            alt: { start: { altitude: 5500 }, end: { altitude: 5200 } },
+            tc:  { start: { turnRate: 0,  ballOffset: 0 }, end: { turnRate: 3,  ballOffset: 0  } },
+            di:  { start: { heading: 90  }, end: { heading: 108 } },
+            vsi: { start: { vspeed: -50 }, end: { vspeed: -600 } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 4. IMPENDING STALL
+    // --------------------------------------------------
+    {
+        id: 'impending-stall',
+        name: 'Impending Stall',
+        question: 'What dangerous condition do these instruments indicate?',
+        answers: [
+            { text: 'Normal slow flight in landing configuration', correct: false },
+            { text: 'Impending aerodynamic stall', correct: true },
+            { text: 'Power-off glide at best glide speed', correct: false },
+            { text: 'Steep turning climb', correct: false }
+        ],
+        explanation: 'Airspeed has dropped into the bottom of the white arc (~52 kts) — below the green arc. The AI shows an extreme nose-high attitude (~18°). The VSI has flipped from a positive climb to negative, signaling the wing is losing lift. This is an impending stall — immediate recovery required.',
+        instruments: {
+            asi: { start: { airspeed: 75  }, end: { airspeed: 52  } },
+            ai:  { start: { pitch: 10, bank: 0  }, end: { pitch: 18, bank: -3  } },
+            alt: { start: { altitude: 3200 }, end: { altitude: 3350 } },
+            tc:  { start: { turnRate: 0,  ballOffset: 0   }, end: { turnRate: -1, ballOffset: 0.2 } },
+            di:  { start: { heading: 180 }, end: { heading: 178 } },
+            vsi: { start: { vspeed: 300 }, end: { vspeed: -100 } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 5. STEEP SPIRAL DIVE (UNUSUAL ATTITUDE)
+    // --------------------------------------------------
+    {
+        id: 'steep-spiral-dive',
+        name: 'Steep Spiral Dive',
+        question: 'What emergency situation is developing?',
+        answers: [
+            { text: 'Steep spiral dive — immediate unusual attitude recovery required', correct: true },
+            { text: 'Normal steep 60° bank turn', correct: false },
+            { text: 'Power dive with level wings', correct: false },
+            { text: 'Stabilized descent at high speed', correct: false }
+        ],
+        explanation: 'This is a graveyard spiral — the most dangerous unusual attitude. Bank is extreme (~65°) with a nose-low pitch. Airspeed is rapidly increasing toward Vne (red line). Altimeter is dropping very fast and VSI is pegged near -2000 ft/min. Recovery: level the wings first, THEN gently ease back pressure. Never just pull back in a steep bank — it tightens the spiral.',
+        instruments: {
+            asi: { start: { airspeed: 130 }, end: { airspeed: 178 } },
+            ai:  { start: { pitch: -5,  bank: 35 }, end: { pitch: -15, bank: 65  } },
+            alt: { start: { altitude: 6000 }, end: { altitude: 5400 } },
+            tc:  { start: { turnRate: 5,  ballOffset: 0.4 }, end: { turnRate: 9,  ballOffset: 0.8 } },
+            di:  { start: { heading: 45  }, end: { heading: 90  } },
+            vsi: { start: { vspeed: -800 }, end: { vspeed: -2000 } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 6. STABILIZED GLIDE — ENGINE FAILURE
+    // --------------------------------------------------
+    {
+        id: 'stabilized-glide',
+        name: 'Stabilized Glide — Engine Failure',
+        question: 'What scenario does this instrument picture indicate?',
+        answers: [
+            { text: 'Normal powered descent for landing', correct: false },
+            { text: 'Engine failure — stabilized best-glide descent', correct: true },
+            { text: 'Approach to stall in landing configuration', correct: false },
+            { text: 'Cruise descent with reduced power', correct: false }
+        ],
+        explanation: 'Airspeed has settled to ~78 kts — typical best-glide speed for a training aircraft. The AI shows a slight nose-down, wings-level attitude. Altimeter is slowly decreasing. VSI is steady between 500-800 ft/min down. The DI heading is constant — no turn. This is a pilot flying best-glide speed following engine failure.',
+        instruments: {
+            asi: { start: { airspeed: 95  }, end: { airspeed: 78  } },
+            ai:  { start: { pitch: 0,  bank: 0 }, end: { pitch: -3, bank: 0 } },
+            alt: { start: { altitude: 4500 }, end: { altitude: 4340 } },
+            tc:  { start: { turnRate: 0, ballOffset: 0 }, end: { turnRate: 0, ballOffset: 0 } },
+            di:  { start: { heading: 360 }, end: { heading: 360 } },
+            vsi: { start: { vspeed: -150 }, end: { vspeed: -650 } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 7. LEVEL LEFT STANDARD RATE TURN
+    // --------------------------------------------------
+    {
+        id: 'level-left-standard',
+        name: 'Level Left Standard Rate Turn',
+        question: 'What is happening here?',
+        answers: [
+            { text: 'Level coordinated left turn at standard rate', correct: true },
+            { text: 'Climbing left turn', correct: false },
+            { text: 'Descending left turn', correct: false },
+            { text: 'Slipping left turn — ball displaced', correct: false }
+        ],
+        explanation: 'The AI shows a 20° left bank with wings tilted left but no pitch change. Airspeed is constant. Altimeter and VSI show no altitude change — this is a level turn. The turn coordinator miniature aircraft is banked left at standard rate (3°/sec). The DI shows heading turning left. Ball centered = coordinated.',
+        instruments: {
+            asi: { start: { airspeed: 120 }, end: { airspeed: 120 } },
+            ai:  { start: { pitch: 2,  bank: 0   }, end: { pitch: 2,  bank: -20 } },
+            alt: { start: { altitude: 5000 }, end: { altitude: 5000 } },
+            tc:  { start: { turnRate: 0,  ballOffset: 0 }, end: { turnRate: -3, ballOffset: 0  } },
+            di:  { start: { heading: 360 }, end: { heading: 345 } },
+            vsi: { start: { vspeed: 0   }, end: { vspeed: 0   } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 8. LEVEL RIGHT STEEP TURN (45°)
+    // --------------------------------------------------
+    {
+        id: 'level-right-steep',
+        name: 'Level Right Steep Turn',
+        question: 'What maneuver is depicted?',
+        answers: [
+            { text: 'Climbing right turn with 45° bank', correct: false },
+            { text: 'Level right steep turn — 45° bank, maintaining altitude', correct: true },
+            { text: 'Descending right turn', correct: false },
+            { text: 'Standard rate right turn — 20° bank', correct: false }
+        ],
+        explanation: 'The AI shows a steep 45° right bank. Note the slight nose-up pitch (~5°) — in a steep turn, back pressure is needed to maintain altitude (the wings are producing less vertical lift). Airspeed is slightly reduced due to increased drag. VSI is near zero — altitude is being held. The DI shows a faster heading change due to the steeper bank angle.',
+        instruments: {
+            asi: { start: { airspeed: 120 }, end: { airspeed: 112 } },
+            ai:  { start: { pitch: 2,  bank: 0  }, end: { pitch: 5,  bank: 45  } },
+            alt: { start: { altitude: 5500 }, end: { altitude: 5500 } },
+            tc:  { start: { turnRate: 0,  ballOffset: 0 }, end: { turnRate: 5,  ballOffset: 0  } },
+            di:  { start: { heading: 270 }, end: { heading: 295 } },
+            vsi: { start: { vspeed: 0   }, end: { vspeed: 50  } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 9. STRAIGHT CLIMB (VY — BEST RATE)
+    // --------------------------------------------------
+    {
+        id: 'straight-climb-vy',
+        name: 'Straight Climb at Vy',
+        question: 'What flight condition is depicted?',
+        answers: [
+            { text: 'Straight climb at best rate of climb speed', correct: true },
+            { text: 'Level flight with power increase', correct: false },
+            { text: 'Climbing left turn', correct: false },
+            { text: 'Approach to stall in climb configuration', correct: false }
+        ],
+        explanation: 'Airspeed has decreased from cruise (~120 kts) to best rate-of-climb speed (Vy, ~80 kts). The AI shows nose-high attitude (~8°) with wings perfectly level — no bank. The altimeter is rising and VSI indicates ~700 ft/min. The DI shows no heading change. This is a textbook straight climb at Vy.',
+        instruments: {
+            asi: { start: { airspeed: 120 }, end: { airspeed: 80  } },
+            ai:  { start: { pitch: 2,  bank: 0 }, end: { pitch: 8,  bank: 0 } },
+            alt: { start: { altitude: 3000 }, end: { altitude: 3300 } },
+            tc:  { start: { turnRate: 0, ballOffset: 0 }, end: { turnRate: 0, ballOffset: 0 } },
+            di:  { start: { heading: 90  }, end: { heading: 90  } },
+            vsi: { start: { vspeed: 50  }, end: { vspeed: 700 } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 10. CRUISE DESCENT — POWER REDUCTION
+    // --------------------------------------------------
+    {
+        id: 'cruise-descent',
+        name: 'Cruise Descent — Power Reduction',
+        question: 'What does this instrument picture indicate?',
+        answers: [
+            { text: 'Straight wings-level descent — power reduced', correct: true },
+            { text: 'Descent with right bank developing', correct: false },
+            { text: 'Emergency descent at maximum speed', correct: false },
+            { text: 'Engine failure — power-off glide', correct: false }
+        ],
+        explanation: 'The AI shows a slight nose-down attitude (~3°) with wings perfectly level. Airspeed is stable as the pilot maintains speed with pitch. Altimeter is slowly falling, VSI shows ~500 ft/min descent. DI heading is constant. This is a controlled, powered descent — possibly a cruise descent or step-down.',
+        instruments: {
+            asi: { start: { airspeed: 120 }, end: { airspeed: 120 } },
+            ai:  { start: { pitch: 2,  bank: 0 }, end: { pitch: -3, bank: 0 } },
+            alt: { start: { altitude: 8500 }, end: { altitude: 8280 } },
+            tc:  { start: { turnRate: 0, ballOffset: 0 }, end: { turnRate: 0, ballOffset: 0 } },
+            di:  { start: { heading: 45  }, end: { heading: 45  } },
+            vsi: { start: { vspeed: 0   }, end: { vspeed: -500 } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 11. GO-AROUND / MISSED APPROACH
+    // --------------------------------------------------
+    {
+        id: 'go-around',
+        name: 'Go-Around / Missed Approach',
+        question: 'What procedure is being executed?',
+        answers: [
+            { text: 'Steep approach with full flaps', correct: false },
+            { text: 'Go-around or missed approach — full power applied', correct: true },
+            { text: 'Spin recovery', correct: false },
+            { text: 'Takeoff rotation from short field', correct: false }
+        ],
+        explanation: 'Airspeed is transitioning from slow approach speed (70 kts) upward as full power is applied. The AI rapidly changes from a nose-low approach attitude to a nose-high climb attitude. VSI reverses from negative (descent) to strongly positive (climb). This is the classic go-around picture — the pilot has abandoned the approach and is climbing away.',
+        instruments: {
+            asi: { start: { airspeed: 70  }, end: { airspeed: 85  } },
+            ai:  { start: { pitch: -3, bank: 0 }, end: { pitch: 8,  bank: 0 } },
+            alt: { start: { altitude: 800 }, end: { altitude: 950  } },
+            tc:  { start: { turnRate: 0, ballOffset: 0 }, end: { turnRate: 0, ballOffset: 0 } },
+            di:  { start: { heading: 270 }, end: { heading: 270 } },
+            vsi: { start: { vspeed: -400 }, end: { vspeed: 700 } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 12. FINAL APPROACH — VISUAL/IFR
+    // --------------------------------------------------
+    {
+        id: 'final-approach',
+        name: 'Final Approach',
+        question: 'What phase of flight is depicted?',
+        answers: [
+            { text: 'Final approach — stabilized, on glidepath', correct: true },
+            { text: 'Engine failure glide', correct: false },
+            { text: 'Cruise descent to cruise altitude', correct: false },
+            { text: 'Descending right turn to base leg', correct: false }
+        ],
+        explanation: 'Airspeed has stabilized at ~75 kts — approach speed. AI shows a gentle nose-down attitude with wings level. Altimeter is steadily decreasing. VSI shows a controlled -500 ft/min — consistent with a 3° glidepath. DI heading is constant, pointing toward the runway. This is a stabilized visual or instrument approach.',
+        instruments: {
+            asi: { start: { airspeed: 90  }, end: { airspeed: 75  } },
+            ai:  { start: { pitch: -1, bank: 0 }, end: { pitch: -2, bank: 0 } },
+            alt: { start: { altitude: 2500 }, end: { altitude: 2220 } },
+            tc:  { start: { turnRate: 0, ballOffset: 0 }, end: { turnRate: 0, ballOffset: 0 } },
+            di:  { start: { heading: 360 }, end: { heading: 360 } },
+            vsi: { start: { vspeed: -350 }, end: { vspeed: -500 } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 13. TAKEOFF CLIMBOUT
+    // --------------------------------------------------
+    {
+        id: 'takeoff-climbout',
+        name: 'Takeoff Climbout',
+        question: 'What phase of flight is this?',
+        answers: [
+            { text: 'Go-around from a low approach', correct: false },
+            { text: 'Takeoff climbout just after rotation', correct: true },
+            { text: 'Climb after engine restart', correct: false },
+            { text: 'Straight climb returning to altitude after descent', correct: false }
+        ],
+        explanation: 'Airspeed is building from rotation speed (~65 kts) as the aircraft accelerates in the climb. AI shows nose-up attitude (~8°) and wings level. Most noticeably, altitude starts very low — the aircraft just left the runway. VSI is strongly positive (~800 ft/min). DI is steady on runway heading.',
+        instruments: {
+            asi: { start: { airspeed: 65  }, end: { airspeed: 88  } },
+            ai:  { start: { pitch: 5,  bank: 0 }, end: { pitch: 8,  bank: 0 } },
+            alt: { start: { altitude: 80  }, end: { altitude: 430  } },
+            tc:  { start: { turnRate: 0, ballOffset: 0 }, end: { turnRate: 0, ballOffset: 0 } },
+            di:  { start: { heading: 180 }, end: { heading: 180 } },
+            vsi: { start: { vspeed: 300 }, end: { vspeed: 800 } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 14. BASE-TO-FINAL TURN
+    // --------------------------------------------------
+    {
+        id: 'base-to-final',
+        name: 'Base-to-Final Turn',
+        question: 'What traffic pattern segment is being flown?',
+        answers: [
+            { text: 'Turning from crosswind to downwind', correct: false },
+            { text: 'Turning from downwind to base', correct: false },
+            { text: 'Turning from base to final — descending left turn', correct: true },
+            { text: 'Level left turn at pattern altitude', correct: false }
+        ],
+        explanation: 'A descending left turn: AI shows left bank (~25°) with a slight nose-down attitude. Airspeed is at approach speed (~82 kts). Altimeter is decreasing — the aircraft is descending through the turn. VSI is negative. DI shows heading turning toward the runway. This is the base-to-final turn, typically flown below 300 ft AGL.',
+        instruments: {
+            asi: { start: { airspeed: 90  }, end: { airspeed: 82  } },
+            ai:  { start: { pitch: -1, bank: 0   }, end: { pitch: -3, bank: -22 } },
+            alt: { start: { altitude: 1000 }, end: { altitude: 850  } },
+            tc:  { start: { turnRate: 0,  ballOffset: 0 }, end: { turnRate: -2.5, ballOffset: 0 } },
+            di:  { start: { heading: 270 }, end: { heading: 255 } },
+            vsi: { start: { vspeed: -300 }, end: { vspeed: -600 } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 15. SPIN ENTRY / DEPARTURE FROM CONTROLLED FLIGHT
+    // --------------------------------------------------
+    {
+        id: 'spin-entry',
+        name: 'Spin Entry / Departure',
+        question: 'What critical departure from controlled flight is occurring?',
+        answers: [
+            { text: 'Coordinated steep climbing turn', correct: false },
+            { text: 'Normal stall recovery with wings level', correct: false },
+            { text: 'Spin entry — departure from controlled flight', correct: true },
+            { text: 'Cross-controlled approach turn', correct: false }
+        ],
+        explanation: 'The aircraft is departing controlled flight into a spin. Airspeed rapidly drops to near zero (stall). The AI shows a nose-high attitude breaking to an extreme bank — one wing has stalled before the other. VSI reverses sharply. The turn coordinator shows a rapid, yawing rotation and the ball is severely displaced (uncoordinated). Immediate recovery: PARE (Power off, Ailerons neutral, Rudder opposite spin direction, Elevator forward).',
+        instruments: {
+            asi: { start: { airspeed: 62  }, end: { airspeed: 28  } },
+            ai:  { start: { pitch: 16, bank: 0   }, end: { pitch: 10, bank: -35 } },
+            alt: { start: { altitude: 4500 }, end: { altitude: 4440 } },
+            tc:  { start: { turnRate: -0.5, ballOffset: 0.3 }, end: { turnRate: -7, ballOffset: 1.0 } },
+            di:  { start: { heading: 090 }, end: { heading: 070 } },
+            vsi: { start: { vspeed: 150 }, end: { vspeed: -800 } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 16. NOSE-HIGH UNUSUAL ATTITUDE
+    // --------------------------------------------------
+    {
+        id: 'nose-high-unusual',
+        name: 'Nose-High Unusual Attitude',
+        question: 'What unusual attitude requires immediate recovery?',
+        answers: [
+            { text: 'Excessive nose-high attitude — stall imminent', correct: true },
+            { text: 'Normal power-on climb', correct: false },
+            { text: 'Chandelle maneuver at completion', correct: false },
+            { text: 'Steep turn with altitude gain', correct: false }
+        ],
+        explanation: 'AI shows extreme nose-high attitude (~25°) — well beyond a normal climb attitude. Airspeed is critically low (~45 kts, below the bottom of the white arc). VSI has reversed — the wing is no longer generating enough lift to climb. A slight bank is developing. Recovery: reduce angle of attack immediately (lower nose), add full power, level the wings.',
+        instruments: {
+            asi: { start: { airspeed: 60  }, end: { airspeed: 45  } },
+            ai:  { start: { pitch: 18, bank: -3  }, end: { pitch: 25, bank: -8  } },
+            alt: { start: { altitude: 7000 }, end: { altitude: 7080 } },
+            tc:  { start: { turnRate: -1, ballOffset: 0.2 }, end: { turnRate: -2, ballOffset: 0.4 } },
+            di:  { start: { heading: 360 }, end: { heading: 357 } },
+            vsi: { start: { vspeed: 300 }, end: { vspeed: -80  } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 17. SPATIAL DISORIENTATION — UNNOTICED GRAVEYARD TURN
+    // --------------------------------------------------
+    {
+        id: 'graveyard-turn',
+        name: 'Unnoticed Bank — Graveyard Turn Entry',
+        question: 'What dangerous situation is developing unnoticed by the pilot?',
+        answers: [
+            { text: 'Pilot-commanded standard rate right turn', correct: false },
+            { text: 'Aircraft in level flight with slight crosswind', correct: false },
+            { text: 'Spatial disorientation — unnoticed bank and altitude loss developing', correct: true },
+            { text: 'Recovery from turbulence-induced bank', correct: false }
+        ],
+        explanation: 'A classic "graveyard turn" entry driven by spatial disorientation. Bank is gradually developing (~30° right) without the pilot noticing. As the bank increases, the nose drops, airspeed increases slightly, and altitude slowly bleeds off. VSI is going negative. The DI heading is changing right. Without instrument scan, this leads to the graveyard spiral. This kills VFR pilots who inadvertently enter IMC.',
+        instruments: {
+            asi: { start: { airspeed: 120 }, end: { airspeed: 128 } },
+            ai:  { start: { pitch: 2,  bank: 0   }, end: { pitch: 0,  bank: 30  } },
+            alt: { start: { altitude: 5000 }, end: { altitude: 4950 } },
+            tc:  { start: { turnRate: 0,  ballOffset: 0 }, end: { turnRate: 3,  ballOffset: 0.1 } },
+            di:  { start: { heading: 270 }, end: { heading: 283 } },
+            vsi: { start: { vspeed: 0   }, end: { vspeed: -350 } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 18. STRONG UPDRAFT / MOUNTAIN WAVE
+    // --------------------------------------------------
+    {
+        id: 'mountain-wave',
+        name: 'Strong Updraft / Mountain Wave',
+        question: 'What atmospheric phenomenon is the aircraft experiencing?',
+        answers: [
+            { text: 'Pilot-commanded rapid climb with full power', correct: false },
+            { text: 'Strong updraft — mountain wave or thermal', correct: true },
+            { text: 'Engine runaway — overspeed condition', correct: false },
+            { text: 'Zoom climb after speed buildup', correct: false }
+        ],
+        explanation: 'Airspeed is slightly reduced (the updraft has pushed the nose up into a gentle climb attitude). The AI shows wings level with mild pitch up. But the VSI is showing a dramatic climb rate of 1500 ft/min — far more than the attitude/power combination would normally produce. Altimeter rising fast. DI steady — no turn. This is an orographic updraft (mountain wave) or strong thermal. In IFR, this is dangerous if you exceed your clearance altitude.',
+        instruments: {
+            asi: { start: { airspeed: 120 }, end: { airspeed: 112 } },
+            ai:  { start: { pitch: 2,  bank: 0 }, end: { pitch: 5,  bank: 0 } },
+            alt: { start: { altitude: 9200 }, end: { altitude: 9700 } },
+            tc:  { start: { turnRate: 0, ballOffset: 0 }, end: { turnRate: 0, ballOffset: 0 } },
+            di:  { start: { heading: 90  }, end: { heading: 90  } },
+            vsi: { start: { vspeed: 100 }, end: { vspeed: 1500 } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 19. EMERGENCY DESCENT — CABIN DEPRESSURIZATION
+    // --------------------------------------------------
+    {
+        id: 'emergency-descent',
+        name: 'Emergency Descent',
+        question: 'What emergency procedure is being executed?',
+        answers: [
+            { text: 'Normal cruise descent to pattern altitude', correct: false },
+            { text: 'Steep spiral dive — loss of control', correct: false },
+            { text: 'Emergency descent — rapid altitude loss, wings level', correct: true },
+            { text: 'Power-off glide after engine failure', correct: false }
+        ],
+        explanation: 'The pilot is executing an emergency descent (e.g., cabin depressurization or engine fire requiring descent to breathable air). Wings are level (AI shows level, no bank). Nose is significantly down (~15°). Airspeed is increasing rapidly — approaching the yellow arc. VSI is pegged at -2000 ft/min. DI heading is steady — this is NOT a spiral; it is a controlled emergency descent.',
+        instruments: {
+            asi: { start: { airspeed: 130 }, end: { airspeed: 168 } },
+            ai:  { start: { pitch: 0,  bank: 0 }, end: { pitch: -15, bank: 0 } },
+            alt: { start: { altitude: 12000 }, end: { altitude: 11100 } },
+            tc:  { start: { turnRate: 0, ballOffset: 0 }, end: { turnRate: 0, ballOffset: 0 } },
+            di:  { start: { heading: 270 }, end: { heading: 270 } },
+            vsi: { start: { vspeed: 0   }, end: { vspeed: -2000 } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 20. POWER-ON DEPARTURE STALL
+    // --------------------------------------------------
+    {
+        id: 'departure-stall',
+        name: 'Power-On Departure Stall',
+        question: 'What stall scenario is developing?',
+        answers: [
+            { text: 'Normal takeoff climbout at Vy', correct: false },
+            { text: 'Power-on departure stall — nose too high in climb', correct: true },
+            { text: 'Chandelle maneuver at full bank', correct: false },
+            { text: 'Airspeed indicator failure', correct: false }
+        ],
+        explanation: 'Full power has been applied but the nose pitch is far too high (~22°) — a common training accident scenario. Airspeed is decreasing rapidly from 80 kts toward a full power stall despite the engine running. VSI goes from strongly positive to reversing. The AOA (angle of attack) is too high regardless of engine power. Recovery: lower the nose to reduce AOA, then maintain coordinated flight.',
+        instruments: {
+            asi: { start: { airspeed: 80  }, end: { airspeed: 48  } },
+            ai:  { start: { pitch: 12, bank: 0 }, end: { pitch: 22, bank: 0 } },
+            alt: { start: { altitude: 3500 }, end: { altitude: 3680 } },
+            tc:  { start: { turnRate: 0, ballOffset: 0 }, end: { turnRate: 0, ballOffset: 0.1 } },
+            di:  { start: { heading: 360 }, end: { heading: 360 } },
+            vsi: { start: { vspeed: 800 }, end: { vspeed: -150 } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 21. RECOVERY FROM STEEP SPIRAL
+    // --------------------------------------------------
+    {
+        id: 'spiral-recovery',
+        name: 'Recovery from Steep Spiral',
+        question: 'What recovery procedure is being flown?',
+        answers: [
+            { text: 'Normal steep turn being rolled out', correct: false },
+            { text: 'Unusual attitude recovery — wings leveling, speed decreasing', correct: true },
+            { text: 'Stall recovery with airspeed building', correct: false },
+            { text: 'Go-around from a steep approach', correct: false }
+        ],
+        explanation: 'The pilot is recovering from a graveyard spiral. Bank is rolling out from steep (65°) toward wings level. As the wings level, the lift vector is restored and the descent rate decreases dramatically. Airspeed is decreasing from high speed back toward cruise. The correct sequence was: wings level first (AI), then gentle back pressure to arrest the descent.',
+        instruments: {
+            asi: { start: { airspeed: 175 }, end: { airspeed: 130 } },
+            ai:  { start: { pitch: -15, bank: 65 }, end: { pitch: 0,   bank: 5  } },
+            alt: { start: { altitude: 5200 }, end: { altitude: 5050 } },
+            tc:  { start: { turnRate: 9,  ballOffset: 0.8 }, end: { turnRate: 0.5, ballOffset: 0 } },
+            di:  { start: { heading: 180 }, end: { heading: 185 } },
+            vsi: { start: { vspeed: -2000 }, end: { vspeed: -250 } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 22. LEVELING OFF AT CRUISE ALTITUDE
+    // --------------------------------------------------
+    {
+        id: 'level-off-cruise',
+        name: 'Leveling Off at Cruise Altitude',
+        question: 'What transition is being made?',
+        answers: [
+            { text: 'Transitioning from cruise to a descent', correct: false },
+            { text: 'Leveling off and accelerating to cruise speed after a climb', correct: true },
+            { text: 'Go-around from low altitude', correct: false },
+            { text: 'Recovering from nose-low unusual attitude', correct: false }
+        ],
+        explanation: 'The aircraft is transitioning from climb to cruise flight. AI pitch is reducing from ~8° (climb) to ~2° (cruise attitude) as the pilot lowers the nose at the target altitude. Airspeed is accelerating from climb speed (~80 kts) to cruise speed (~120 kts) as the nose comes down. VSI is decreasing toward zero. Altimeter is stabilizing.',
+        instruments: {
+            asi: { start: { airspeed: 82  }, end: { airspeed: 118 } },
+            ai:  { start: { pitch: 8,  bank: 0 }, end: { pitch: 2,  bank: 0 } },
+            alt: { start: { altitude: 7450 }, end: { altitude: 7500 } },
+            tc:  { start: { turnRate: 0, ballOffset: 0 }, end: { turnRate: 0, ballOffset: 0 } },
+            di:  { start: { heading: 45  }, end: { heading: 45  } },
+            vsi: { start: { vspeed: 600 }, end: { vspeed: 0   } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 23. OVERBANKED STEEP TURN — INCIPIENT LOSS OF CONTROL
+    // --------------------------------------------------
+    {
+        id: 'overbanked-turn',
+        name: 'Overbanked Steep Turn — Incipient LOC',
+        question: 'What is going wrong in this steep turn?',
+        answers: [
+            { text: 'Normal 60° bank steep turn', correct: false },
+            { text: 'Bank angle increasing beyond intended — altitude and speed diverging', correct: true },
+            { text: 'Coordinated recovery from unusual attitude', correct: false },
+            { text: 'Level steep turn with altitude holding', correct: false }
+        ],
+        explanation: 'The bank started at 45° (normal steep turn) but is overbanking to 70° without correction. As the bank steepens, lift is increasingly directed sideways rather than upward, so the nose drops and airspeed increases. Altitude is bleeding off rapidly. This is the entry to a graveyard spiral — the pilot must immediately reduce bank and restore altitude.',
+        instruments: {
+            asi: { start: { airspeed: 115 }, end: { airspeed: 135 } },
+            ai:  { start: { pitch: 3,  bank: 45 }, end: { pitch: -5, bank: 70  } },
+            alt: { start: { altitude: 6000 }, end: { altitude: 5820 } },
+            tc:  { start: { turnRate: 5,  ballOffset: 0.3 }, end: { turnRate: 8,  ballOffset: 0.6 } },
+            di:  { start: { heading: 90  }, end: { heading: 125 } },
+            vsi: { start: { vspeed: 50  }, end: { vspeed: -1200 } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 24. HOLDING PATTERN — STANDARD ENTRY TURN
+    // --------------------------------------------------
+    {
+        id: 'holding-turn',
+        name: 'Holding Pattern — Standard Rate Turn',
+        question: 'What instrument procedure does this depict?',
+        answers: [
+            { text: 'Normal cruise with shallow bank', correct: false },
+            { text: 'Holding pattern — level standard rate right turn', correct: true },
+            { text: 'Right traffic pattern turn', correct: false },
+            { text: 'Climbing right turn to cruise altitude', correct: false }
+        ],
+        explanation: 'In IFR holding patterns, standard rate turns (3°/sec, 20° bank at typical speeds) are used. AI shows 20° right bank with level pitch, altitude is constant, VSI reads zero, and airspeed is stable. The DI heading is turning right at a steady rate. This is the inbound or outbound turning leg of a holding pattern.',
+        instruments: {
+            asi: { start: { airspeed: 120 }, end: { airspeed: 120 } },
+            ai:  { start: { pitch: 2,  bank: 0  }, end: { pitch: 2,  bank: 20  } },
+            alt: { start: { altitude: 7000 }, end: { altitude: 7000 } },
+            tc:  { start: { turnRate: 0,  ballOffset: 0 }, end: { turnRate: 3,  ballOffset: 0  } },
+            di:  { start: { heading: 90  }, end: { heading: 108 } },
+            vsi: { start: { vspeed: 0   }, end: { vspeed: 0   } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 25. DOWNWIND LEG — TRAFFIC PATTERN
+    // --------------------------------------------------
+    {
+        id: 'downwind-leg',
+        name: 'Downwind Leg — Traffic Pattern',
+        question: 'What traffic pattern leg is being flown?',
+        answers: [
+            { text: 'Cruise flight at altitude', correct: false },
+            { text: 'Downwind leg — level at pattern altitude', correct: true },
+            { text: 'Crosswind leg after departure', correct: false },
+            { text: 'Final approach at reduced airspeed', correct: false }
+        ],
+        explanation: 'Level flight at pattern altitude (~1800 ft AGL), airspeed reduced to ~100 kts (pattern speed with reduced power, pre-flap). AI shows wings level. VSI zero — altitude held. DI shows a reciprocal heading to the runway (aircraft flying parallel but opposite direction to the runway). This is the downwind leg — where the pilot checks off the landing checklist.',
+        instruments: {
+            asi: { start: { airspeed: 110 }, end: { airspeed: 100 } },
+            ai:  { start: { pitch: 2,  bank: 0 }, end: { pitch: 2,  bank: 0 } },
+            alt: { start: { altitude: 1800 }, end: { altitude: 1800 } },
+            tc:  { start: { turnRate: 0, ballOffset: 0 }, end: { turnRate: 0, ballOffset: 0 } },
+            di:  { start: { heading: 180 }, end: { heading: 180 } },
+            vsi: { start: { vspeed: 0  }, end: { vspeed: 0  } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 26. INADVERTENT IMC — VFR INTO CLOUDS
+    // --------------------------------------------------
+    {
+        id: 'inadvertent-imc',
+        name: 'Inadvertent IMC — Spatial Disorientation',
+        question: 'What dangerous situation is this VFR pilot experiencing?',
+        answers: [
+            { text: 'Intentional IFR flight in cloud', correct: false },
+            { text: 'Turbulence-induced bank correction', correct: false },
+            { text: 'VFR pilot in IMC — spatial disorientation developing into spiral entry', correct: true },
+            { text: 'Standard instrument departure in cloud', correct: false }
+        ],
+        explanation: 'A VFR pilot has entered IMC (cloud). Without visual references, they experience the "leans" — spatial disorientation. The aircraft is in a 35° left bank they cannot feel. Airspeed is increasing as the nose drops. Altitude is bleeding off. Heading is changing left. VSI is developing a descent. Statistics show VFR pilots in IMC average ~178 seconds before loss of control. The fix: trust the instruments, level the wings.',
+        instruments: {
+            asi: { start: { airspeed: 120 }, end: { airspeed: 132 } },
+            ai:  { start: { pitch: 2,  bank: -5  }, end: { pitch: -1, bank: -35 } },
+            alt: { start: { altitude: 4500 }, end: { altitude: 4420 } },
+            tc:  { start: { turnRate: -0.5, ballOffset: 0.1 }, end: { turnRate: -3.5, ballOffset: 0.2 } },
+            di:  { start: { heading: 360 }, end: { heading: 347 } },
+            vsi: { start: { vspeed: 0   }, end: { vspeed: -450 } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 27. POST-STALL RECOVERY
+    // --------------------------------------------------
+    {
+        id: 'stall-recovery',
+        name: 'Stall Recovery',
+        question: 'What is being accomplished in this scenario?',
+        answers: [
+            { text: 'Go-around with late power application', correct: false },
+            { text: 'Stall recovery — airspeed rebuilding, nose coming down', correct: true },
+            { text: 'Leveling off from a descent', correct: false },
+            { text: 'Engine restart after failure', correct: false }
+        ],
+        explanation: 'The aircraft is recovering from a stall. AI shows the nose dropping from a high angle (~18°) back to a normal attitude (~5°). Airspeed is rapidly rebuilding from near-stall speed (~52 kts) back toward normal as the AOA is reduced and lift is restored. VSI transitions from negative (brief altitude loss in recovery) back toward positive. Wings are being leveled. The pilot has correctly reduced AOA to stop the stall.',
+        instruments: {
+            asi: { start: { airspeed: 52  }, end: { airspeed: 82  } },
+            ai:  { start: { pitch: 18, bank: -3  }, end: { pitch: 5,  bank: 0   } },
+            alt: { start: { altitude: 4100 }, end: { altitude: 4020 } },
+            tc:  { start: { turnRate: -1, ballOffset: 0.3 }, end: { turnRate: 0,  ballOffset: 0   } },
+            di:  { start: { heading: 180 }, end: { heading: 180 } },
+            vsi: { start: { vspeed: -200 }, end: { vspeed: 400 } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 28. PARTIAL POWER ECONOMY CLIMB
+    // --------------------------------------------------
+    {
+        id: 'economy-climb',
+        name: 'Partial Power Economy Climb',
+        question: 'How does this climb differ from a best-rate climb?',
+        answers: [
+            { text: 'It is identical to a best-rate-of-climb profile', correct: false },
+            { text: 'Partial power climb — slower climb rate, higher airspeed', correct: true },
+            { text: 'Best-angle climb at Vx — steeper nose, slower speed', correct: false },
+            { text: 'Descent profile with power reduction', correct: false }
+        ],
+        explanation: 'This is an economy/cruise climb — higher airspeed (~100 kts vs Vy ~80) with a shallower nose attitude (~5° vs ~8°). The result is a lower climb rate (~300 ft/min). This is used for long cross-countries to prioritize engine cooling and faster groundspeed over climb efficiency. Compare to Vy: same direction, lower nose, faster speed, less VSI.',
+        instruments: {
+            asi: { start: { airspeed: 110 }, end: { airspeed: 100 } },
+            ai:  { start: { pitch: 3,  bank: 0 }, end: { pitch: 5,  bank: 0 } },
+            alt: { start: { altitude: 5000 }, end: { altitude: 5150 } },
+            tc:  { start: { turnRate: 0, ballOffset: 0 }, end: { turnRate: 0, ballOffset: 0 } },
+            di:  { start: { heading: 270 }, end: { heading: 270 } },
+            vsi: { start: { vspeed: 100 }, end: { vspeed: 300 } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 29. CROSSWIND TAKEOFF — WING-LOW CRAB CORRECTION
+    // --------------------------------------------------
+    {
+        id: 'crosswind-takeoff',
+        name: 'Crosswind Takeoff Climbout',
+        question: 'What crosswind correction technique is being applied during climbout?',
+        answers: [
+            { text: 'Normal straight-ahead climbout — no wind', correct: false },
+            { text: 'Crosswind correction — slight bank into wind to track runway centerline', correct: true },
+            { text: 'Turning on course after departure', correct: false },
+            { text: 'Recovery from wind shear on climbout', correct: false }
+        ],
+        explanation: 'The aircraft is climbing but maintaining a slight bank into the crosswind (right bank ~8°) with opposite rudder to keep the nose straight — the wing-low crosswind technique. AI shows nose-up with a slight right bank. Turn coordinator shows right bank but ball is slightly left (opposite rudder applied). DI heading is steady — tracking the runway extended centerline despite the crosswind.',
+        instruments: {
+            asi: { start: { airspeed: 70  }, end: { airspeed: 82  } },
+            ai:  { start: { pitch: 7,  bank: 3  }, end: { pitch: 8,  bank: 8  } },
+            alt: { start: { altitude: 200 }, end: { altitude: 520  } },
+            tc:  { start: { turnRate: 0.5, ballOffset: -0.1 }, end: { turnRate: 1,  ballOffset: -0.3 } },
+            di:  { start: { heading: 270 }, end: { heading: 270 } },
+            vsi: { start: { vspeed: 400 }, end: { vspeed: 650 } }
+        }
+    },
+
+    // --------------------------------------------------
+    // 30. WIND SHEAR ON FINAL — AIRSPEED LOSS
+    // --------------------------------------------------
+    {
+        id: 'wind-shear-final',
+        name: 'Wind Shear on Final Approach',
+        question: 'What hazardous condition is the pilot encountering?',
+        answers: [
+            { text: 'Normal airspeed deceleration for landing flare', correct: false },
+            { text: 'Engine failure on final approach', correct: false },
+            { text: 'Wind shear — sudden airspeed loss requiring immediate go-around', correct: true },
+            { text: 'Pilot-induced oscillation on approach', correct: false }
+        ],
+        explanation: 'Wind shear on final: the aircraft transitions from a headwind to a tailwind (or calm air), causing a sudden loss of indicated airspeed — from 80 kts down to 62 kts. The nose-low approach attitude remains but the AI and VSI both show the aircraft sinking rapidly below the glidepath as lift decreases. Altitude is dropping faster than expected. This requires immediate full power and go-around. Wind shear below 1000 ft AGL is fatal if not recognized.',
+        instruments: {
+            asi: { start: { airspeed: 80  }, end: { airspeed: 62  } },
+            ai:  { start: { pitch: -2, bank: 0 }, end: { pitch: -5, bank: 0 } },
+            alt: { start: { altitude: 600 }, end: { altitude: 460  } },
+            tc:  { start: { turnRate: 0, ballOffset: 0 }, end: { turnRate: 0, ballOffset: 0 } },
+            di:  { start: { heading: 360 }, end: { heading: 360 } },
+            vsi: { start: { vspeed: -450 }, end: { vspeed: -1100 } }
+        }
+    }
+
+];
+
+// Number of scenarios per training session.
+// Set to SCENARIOS.length to always use all 30.
+window.QUIZ_LENGTH = window.SCENARIOS.length;
+
+    </script>
+    <script>
+/* ===================================================
+   APP.JS — Six Pack Instrument Trainer
+   Quiz state machine, animation controller, scoring
+   =================================================== */
+
+// ---------------------------------------------------
+// Math helpers
+// ---------------------------------------------------
+
+function lerp(a, b, t) {
+    return a + (b - a) * t;
+}
+
+function easeInOut(t) {
+    return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+}
+
+function lerpHeading(a, b, t) {
+    let diff = b - a;
+    if (diff > 180)  diff -= 360;
+    if (diff < -180) diff += 360;
+    return ((a + diff * t) + 360) % 360;
+}
+
+function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+// ---------------------------------------------------
+// DOM refs
+// ---------------------------------------------------
+
+const dom = {
+    // Screens
+    introScreen:    document.getElementById('intro-screen'),
+    trainerPanel:   document.getElementById('trainer-panel'),
+    questionPanel:  document.getElementById('question-panel'),
+    feedbackPanel:  document.getElementById('feedback-panel'),
+    completeScreen: document.getElementById('complete-screen'),
+
+    // Header
+    scenarioCounter: document.getElementById('scenario-counter'),
+    scoreTracker:    document.getElementById('score-tracker'),
+    statusText:      document.getElementById('status-text'),
+
+    // Progress
+    progressFill: document.getElementById('progress-fill'),
+
+    // Question
+    questionText: document.getElementById('question-text'),
+    answerGrid:   document.getElementById('answer-grid'),
+
+    // Feedback
+    feedbackIcon:        document.getElementById('feedback-icon'),
+    feedbackResult:      document.getElementById('feedback-result'),
+    feedbackExplanation: document.getElementById('feedback-explanation'),
+    btnNext:             document.getElementById('btn-next'),
+
+    // Complete
+    finalScore: document.getElementById('final-score'),
+    finalGrade: document.getElementById('final-grade'),
+
+    // Buttons
+    btnStart: document.getElementById('btn-start'),
+    btnRetry: document.getElementById('btn-retry'),
+
+    // SVG elements
+    svgASI: document.getElementById('svg-asi'),
+    svgAI:  document.getElementById('svg-ai'),
+    svgALT: document.getElementById('svg-alt'),
+    svgTC:  document.getElementById('svg-tc'),
+    svgDI:  document.getElementById('svg-di'),
+    svgVSI: document.getElementById('svg-vsi'),
+};
+
+// ---------------------------------------------------
+// Screen Management
+// ---------------------------------------------------
+
+const screens = [
+    dom.introScreen,
+    dom.trainerPanel,
+    dom.questionPanel,
+    dom.feedbackPanel,
+    dom.completeScreen
+];
+
+function showOnly(...active) {
+    screens.forEach(s => s.classList.add('hidden'));
+    active.forEach(s => s.classList.remove('hidden'));
+}
+
+// ---------------------------------------------------
+// Instrument initialization
+// ---------------------------------------------------
+
+const instruments = {};
+
+function initInstruments() {
+    instruments.asi = new window.Instruments.ASI(dom.svgASI);
+    instruments.ai  = new window.Instruments.AI(dom.svgAI);
+    instruments.alt = new window.Instruments.ALT(dom.svgALT);
+    instruments.tc  = new window.Instruments.TC(dom.svgTC);
+    instruments.di  = new window.Instruments.DI(dom.svgDI);
+    instruments.vsi = new window.Instruments.VSI(dom.svgVSI);
+
+    for (const inst of Object.values(instruments)) {
+        inst.init();
+    }
+}
+
+// ---------------------------------------------------
+// State interpolation
+// ---------------------------------------------------
+
+function interpolateState(scenario, t) {
+    const result = {};
+    for (const key of ['asi', 'ai', 'alt', 'tc', 'di', 'vsi']) {
+        result[key] = {};
+        const s = scenario.instruments[key].start;
+        const e = scenario.instruments[key].end;
+        for (const prop of Object.keys(s)) {
+            if (prop === 'heading') {
+                result[key][prop] = lerpHeading(s[prop], e[prop], t);
+            } else {
+                result[key][prop] = lerp(s[prop], e[prop], t);
+            }
+        }
+    }
+    return result;
+}
+
+// ---------------------------------------------------
+// Animation Controller
+// ---------------------------------------------------
+
+const ANIM_DURATION = 3000; // ms
+
+class AnimationController {
+    constructor() {
+        this.rafId = null;
+        this.startTime = null;
+        this.scenario = null;
+        this.onComplete = null;
+    }
+
+    start(scenario, onComplete) {
+        this.stop();
+        this.scenario = scenario;
+        this.onComplete = onComplete;
+        this.startTime = performance.now();
+        dom.progressFill.style.width = '0%';
+        this.rafId = requestAnimationFrame(ts => this._tick(ts));
+    }
+
+    _tick(timestamp) {
+        const elapsed = timestamp - this.startTime;
+        const rawT = Math.min(elapsed / ANIM_DURATION, 1.0);
+        const t = easeInOut(rawT);
+
+        // Update all instruments
+        const state = interpolateState(this.scenario, t);
+        for (const key of ['asi', 'ai', 'alt', 'tc', 'di', 'vsi']) {
+            instruments[key].render(state[key]);
+        }
+
+        // Update progress bar (use rawT for linear bar fill)
+        dom.progressFill.style.width = (rawT * 100) + '%';
+
+        if (rawT < 1.0) {
+            this.rafId = requestAnimationFrame(ts => this._tick(ts));
+        } else {
+            this.rafId = null;
+            if (this.onComplete) this.onComplete();
+        }
+    }
+
+    stop() {
+        if (this.rafId !== null) {
+            cancelAnimationFrame(this.rafId);
+            this.rafId = null;
+        }
+    }
+}
+
+// ---------------------------------------------------
+// Score Tracker
+// ---------------------------------------------------
+
+class ScoreTracker {
+    constructor() { this.reset(); }
+
+    reset() {
+        this.correct = 0;
+        this.total = 0;
+        this.history = [];
+    }
+
+    record(scenarioId, isCorrect) {
+        this.total++;
+        if (isCorrect) this.correct++;
+        this.history.push({ scenarioId, isCorrect });
+        this._updateDisplay();
+    }
+
+    _updateDisplay() {
+        dom.scoreTracker.textContent = `${this.correct} / ${this.total}`;
+    }
+
+    get percentage() {
+        return this.total ? Math.round(100 * this.correct / this.total) : 0;
+    }
+
+    gradeText() {
+        const p = this.percentage;
+        if (p === 100) return 'Perfect — Instrument Proficient';
+        if (p >= 83)  return 'Excellent — Above Minimums';
+        if (p >= 66)  return 'Good — Continue Training';
+        if (p >= 50)  return 'Marginal — Review Needed';
+        return 'Unsatisfactory — Ground Study Required';
+    }
+}
+
+// ---------------------------------------------------
+// Quiz Controller
+// ---------------------------------------------------
+
+class QuizController {
+    constructor() {
+        this.scenarios = [];
+        this.currentIndex = 0;
+        this.animCtrl = new AnimationController();
+        this.score = new ScoreTracker();
+        this.questionStartTime = 0;
+    }
+
+    start() {
+        this.score.reset();
+        this.scenarios = shuffle([...window.SCENARIOS]).slice(0, window.QUIZ_LENGTH);
+        this.currentIndex = 0;
+        this._loadScenario();
+    }
+
+    _loadScenario() {
+        const scenario = this.scenarios[this.currentIndex];
+
+        // Update header
+        dom.scenarioCounter.textContent = `${this.currentIndex + 1} / ${this.scenarios.length}`;
+        dom.scoreTracker.textContent = `${this.score.correct} / ${this.score.total}`;
+
+        // Snap instruments to start state
+        for (const key of ['asi', 'ai', 'alt', 'tc', 'di', 'vsi']) {
+            instruments[key].setState(scenario.instruments[key].start);
+        }
+        dom.progressFill.style.width = '0%';
+        dom.statusText.textContent = 'Observe the instruments...';
+
+        showOnly(dom.trainerPanel);
+
+        // Brief pause at start state so user can orient, then animate
+        setTimeout(() => {
+            dom.statusText.textContent = 'Watch carefully — 3 seconds...';
+            this.animCtrl.start(scenario, () => {
+                // Animation complete — instruments frozen at end state
+                dom.statusText.textContent = 'Instruments frozen. What happened?';
+                dom.progressFill.style.width = '100%';
+                setTimeout(() => this._showQuestion(scenario), 400);
+            });
+        }, 600);
+    }
+
+    _showQuestion(scenario) {
+        dom.questionText.textContent = scenario.question;
+
+        // Build shuffled answer buttons (shuffle answers so correct isn't always same position)
+        const shuffledAnswers = shuffle(scenario.answers.map((a, i) => ({ ...a, origIdx: i })));
+        const letters = ['A', 'B', 'C', 'D'];
+
+        dom.answerGrid.innerHTML = '';
+        shuffledAnswers.forEach((answer, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'answer-btn';
+            btn.innerHTML = `<span class="answer-letter">${letters[i]}</span>${answer.text}`;
+            btn.addEventListener('click', () => this._submitAnswer(scenario, answer.correct, shuffledAnswers, btn));
+            dom.answerGrid.appendChild(btn);
+        });
+
+        this.questionStartTime = Date.now();
+        showOnly(dom.trainerPanel, dom.questionPanel);
+    }
+
+    _submitAnswer(scenario, isCorrect, allAnswers, clickedBtn) {
+        // Disable all buttons
+        const allBtns = dom.answerGrid.querySelectorAll('.answer-btn');
+        allBtns.forEach(b => {
+            b.disabled = true;
+            b.style.pointerEvents = 'none';
+        });
+
+        // Mark clicked button and reveal correct answer
+        clickedBtn.classList.add(isCorrect ? 'correct' : 'wrong');
+        if (!isCorrect) {
+            // Highlight the correct answer
+            allBtns.forEach((b, i) => {
+                if (allAnswers[i] && allAnswers[i].correct) {
+                    b.classList.add('correct');
+                }
+            });
+        }
+
+        this.score.record(scenario.id, isCorrect);
+
+        // Show feedback after brief pause
+        setTimeout(() => this._showFeedback(scenario, isCorrect), 500);
+    }
+
+    _showFeedback(scenario, isCorrect) {
+        dom.feedbackIcon.textContent = isCorrect ? '✓' : '✗';
+        dom.feedbackResult.textContent = isCorrect ? 'Correct!' : 'Incorrect';
+        dom.feedbackResult.className = isCorrect ? 'correct' : 'wrong';
+        dom.feedbackExplanation.textContent = scenario.explanation;
+
+        const isLast = this.currentIndex >= this.scenarios.length - 1;
+        dom.btnNext.textContent = isLast ? 'View Results →' : 'Next Scenario →';
+
+        showOnly(dom.trainerPanel, dom.feedbackPanel);
+    }
+
+    next() {
+        this.currentIndex++;
+        if (this.currentIndex >= this.scenarios.length) {
+            this._showComplete();
+        } else {
+            this._loadScenario();
+        }
+    }
+
+    _showComplete() {
+        dom.finalScore.textContent = `${this.score.correct} / ${this.score.total}`;
+        dom.finalGrade.textContent = this.score.gradeText();
+        showOnly(dom.completeScreen);
+    }
+}
+
+// ---------------------------------------------------
+// App Bootstrap
+// ---------------------------------------------------
+
+let quiz;
+
+document.addEventListener('DOMContentLoaded', () => {
+    initInstruments();
+
+    // Set initial instrument positions on intro (for visual flair — optional neutral state)
+    const neutral = {
+        asi: { airspeed: 0 },
+        ai:  { pitch: 0, bank: 0 },
+        alt: { altitude: 0 },
+        tc:  { turnRate: 0, ballOffset: 0 },
+        di:  { heading: 360 },
+        vsi: { vspeed: 0 }
+    };
+    for (const key of ['asi', 'ai', 'alt', 'tc', 'di', 'vsi']) {
+        instruments[key].setState(neutral[key]);
+    }
+
+    quiz = new QuizController();
+
+    // Wire buttons
+    dom.btnStart.addEventListener('click', () => {
+        showOnly(dom.trainerPanel);
+        quiz.start();
+    });
+
+    dom.btnNext.addEventListener('click', () => {
+        quiz.next();
+    });
+
+    dom.btnRetry.addEventListener('click', () => {
+        quiz.start();
+    });
+});
+
+    </script>
+</body>
+</html>
